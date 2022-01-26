@@ -4,14 +4,22 @@ import { useRouter } from "next/router";
 import { useEthers } from "@usedapp/core";
 import { formatEther } from "ethers/lib/utils";
 import { AddressZero } from "@ethersproject/constants";
+import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 
 import client from "../lib/client";
 import { CenterLoadingDots } from "../components/CenterLoadingDots";
 import { EthIcon, MagicIcon, SwapIcon } from "../components/Icons";
 import { useMagic } from "../context/magicContext";
-import { daysUntil, formatDate, formatNumber, getLockupPeriodDisplayText, normalizeDeposit } from "../utils";
+import {
+  daysUntil,
+  formatDate,
+  formatNumber,
+  getLockupPeriodDisplayText,
+  normalizeDeposit,
+} from "../utils";
 import type { Deposit } from "../../generated/graphql";
 import { useBridgeworld } from "../lib/hooks";
+import { Tooltip } from "../components/Tooltip";
 
 const Inventory = () => {
   const { query } = useRouter();
@@ -21,7 +29,7 @@ const Inventory = () => {
   const address = (query.address as string ?? account)?.toLowerCase();
 
   const {
-    // accMagicPerShare,
+    accMagicPerShare,
     totalLpToken,
   } = useBridgeworld();
 
@@ -32,18 +40,21 @@ const Inventory = () => {
     { enabled: !!address }
   );
 
-  const [deposits, nftBoost] = useMemo(() => {
-    const { deposits = [], boost = "0" } = userDeposits.data?.user || {};
+  const [deposits, nftBoost, numBoosts] = useMemo(() => {
+    const { deposits = [], boost = "0", boosts = 0 } = userDeposits.data?.user || {};
     const boostPct = parseFloat(boost);
     return [
       deposits.map((deposit) => normalizeDeposit(deposit as Deposit, boostPct)),
       boostPct,
+      boosts,
     ];
   }, [userDeposits.data?.user]);
 
   const totalUserDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
   const totalUserMiningPower = deposits.reduce((total, { miningPower }) => total + miningPower, 0);
   const totalMiningPower = parseFloat(formatEther(totalLpToken));
+  const totalUserAccMagic = parseFloat(formatEther(accMagicPerShare)) * totalUserMiningPower;
+  console.log(totalUserAccMagic);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -96,6 +107,9 @@ const Inventory = () => {
                     <div className="flex flex-col px-6 sm:px-8 pt-8">
                       <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
                         NFT Boost
+                        {/* <Tooltip content={`From ${numBoosts} NFT${numBoosts !== 1 ? 's' : ''}`} side="bottom">
+                          <QuestionMarkCircleIcon className="inline h-5 w-5" aria-hidden="true" />
+                        </Tooltip> */}
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
                         {formatNumber(nftBoost * 100)}%
@@ -109,9 +123,12 @@ const Inventory = () => {
                         {formatNumber(totalUserMiningPower)}
                       </dd>
                     </div>
-                    <div className="flex flex-col px-6 sm:px-8 pt-8">
+                    <div className="relative flex flex-col px-6 sm:px-8 pt-8">
                       <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
-                        Share of Mine
+                        Share of Mine{" "}
+                        <Tooltip content={`Total Mining Power: ${formatNumber(totalMiningPower)}`} side="bottom">
+                          <QuestionMarkCircleIcon className="inline h-5 w-5" aria-hidden="true" />
+                        </Tooltip>
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
                         {totalMiningPower ? Math.round(((totalUserMiningPower / totalMiningPower) * 100) * 10000) / 10000 : 0}%
