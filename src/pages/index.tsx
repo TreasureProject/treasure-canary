@@ -28,10 +28,7 @@ const Inventory = () => {
   const [portfolioCurrency, setPortfolioCurrency] = useState<"magic" | "eth">("magic");
   const address = (query.address as string ?? account)?.toLowerCase();
 
-  const {
-    accMagicPerShare,
-    totalLpToken,
-  } = useBridgeworld();
+  const { totalLpToken } = useBridgeworld();
 
   const userDeposits = useQuery(
     "userDeposits",
@@ -53,8 +50,10 @@ const Inventory = () => {
   const totalUserDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
   const totalUserMiningPower = deposits.reduce((total, { miningPower }) => total + miningPower, 0);
   const totalMiningPower = parseFloat(formatEther(totalLpToken));
-  const totalUserAccMagic = parseFloat(formatEther(accMagicPerShare)) * totalUserMiningPower;
-  console.log(totalUserAccMagic);
+  const userMiningPowerPct = totalMiningPower ? totalUserMiningPower / totalMiningPower : 0;
+  const roundedUserMiningPowerPct = Math.round(((userMiningPowerPct) * 100) * 10000) / 10000;
+  const totalEmissions = 23464251;
+  const emissionsPerHour = totalEmissions / 5844; // over 8 months
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -131,7 +130,18 @@ const Inventory = () => {
                         </Tooltip>
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
-                        {totalMiningPower ? Math.round(((totalUserMiningPower / totalMiningPower) * 100) * 10000) / 10000 : 0}%
+                        {roundedUserMiningPowerPct}%
+                      </dd>
+                    </div>
+                    <div className="relative flex flex-col px-6 sm:px-8 pt-8">
+                      <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
+                        $MAGIC Rewards/Hour{" "}
+                        <Tooltip content="Your share of 23,464,251 MAGIC set to be emitted over the next 8 months" side="bottom">
+                          <QuestionMarkCircleIcon className="inline h-5 w-5" aria-hidden="true" />
+                        </Tooltip>
+                      </dt>
+                      <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
+                        {(userMiningPowerPct * emissionsPerHour).toFixed(2)}
                       </dd>
                     </div>
                   </dl>
