@@ -41,20 +41,20 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <title>Canary: Bridgeworld Atlas Mine Stats</title>
-        <meta name="title" content="Canary: Bridgeworld Atlas Mine Stats" />
+        <title>Atlas Mine Canary: Bridgeworld Stats</title>
+        <meta name="title" content="Atlas Mine Canary: Bridgeworld Stats" />
         <meta
           name="description"
           content="Track your deposits to the Bridgeworld Atlas Mine by TreasureDAO"
         />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Canary: Bridgeworld Atlas Mine Stats" />
+        <meta property="og:title" content="Atlas Mine Canary: Bridgeworld Stats" />
         <meta
           property="og:description"
           content="Track your deposits to the Bridgeworld Atlas Mine by TreasureDAO"
         />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Canary: Bridgeworld Atlas Mine Stats" />
+        <meta property="twitter:title" content="Atlas Mine Canary: Bridgeworld Stats" />
         <meta
           property="twitter:description"
           content="Track your deposits to the Bridgeworld Atlas Mine by TreasureDAO"

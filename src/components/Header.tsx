@@ -167,8 +167,18 @@ const Header = () => {
                   <div className="hidden h-full lg:flex lg:items-center">
                     <div className="h-full items-center justify-center space-x-6 mr-6 hidden xl:flex">
                       <Link href="/" passHref>
-                        <a className="text-gray-700 block px-4 py-2 text-sm dark:text-gray-200">
-                          Canary: Bridgeworld Atlas Mine Stats
+                        <a className="text-gray-700 font-extrabold block px-4 py-2 text-lg dark:text-gray-100">
+                          Atlas Mine Canary
+                        </a>
+                      </Link>
+                      <Link href="/" passHref>
+                        <a className="flex items-center text-sm font-medium dark:hover:text-gray-200 hover:text-gray-800 dark:text-gray-500 text-gray-700">
+                          My Deposits
+                        </a>
+                      </Link>
+                      <Link href="/leaderboard" passHref>
+                        <a className="flex items-center text-sm font-medium dark:hover:text-gray-200 hover:text-gray-800 dark:text-gray-500 text-gray-700">
+                          Leaderboard
                         </a>
                       </Link>
                     </div>

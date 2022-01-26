@@ -1,30 +1,35 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
-import { useRouter } from "next/router";
-import { useEthers } from "@usedapp/core";
-import { AddressZero } from "@ethersproject/constants";
+import { shortenAddress } from "@usedapp/core";
 
 import client from "../lib/client";
 import { CenterLoadingDots } from "../components/CenterLoadingDots";
-import { formatPrice, normalizeDeposit } from "../utils";
-import type { Deposit } from "../../generated/graphql";
+import { formatPrice } from "../utils";
+import { Contracts } from "../const";
+import { useChainId } from "../lib/hooks";
 
 const Inventory = () => {
-  const { query } = useRouter();
-  const { account } = useEthers();
-  const address = (query.address as string ?? account)?.toLowerCase();
+  const chainId = useChainId();
 
-  const userDeposits = useQuery(
-    "userDeposits",
+  const topDeposits = useQuery(
+    "topDeposits",
     () =>
-      client.getUserDeposits({ id: address ?? AddressZero }),
-    { enabled: !!address }
+      client.getAtlasMineTopDeposits({
+        id: Contracts[chainId].atlasMine,
+        first: 100,
+        skip: 0,
+      })
   );
 
-  const deposits = useMemo(() => {
-    const { deposits = [] } = userDeposits.data?.user || {};
-    return deposits.map((deposit) => normalizeDeposit(deposit as Deposit));
-  }, [userDeposits.data?.user])
+  const leaderboard = useMemo(() => {
+    const { deposits = [] } = topDeposits.data?.atlasMine || {};
+    return deposits.map(({ id, amount, user, endTimestamp }) => ({
+      id,
+      amount,
+      address: user.id,
+      unlockDate: new Date(parseInt(endTimestamp)),
+    }))
+  }, [topDeposits.data?.atlasMine])
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -32,16 +37,16 @@ const Inventory = () => {
         <main className="flex-1 overflow-y-auto">
           <div className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-center text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
-              My Deposits
+              Leaderboard
             </h1>
-            {userDeposits.isLoading ? (
+            {topDeposits.isLoading ? (
               <section className="mt-14 pb-14">
                 <CenterLoadingDots className="h-36" />
               </section>
             ) : (
               <>
                 <section className="mt-14 pb-14">
-                  {deposits.length === 0 ? (
+                  {leaderboard.length === 0 ? (
                     <div className="flex flex-col justify-center items-center h-36">
                       <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">
                         No deposits yet 😞
@@ -57,12 +62,15 @@ const Inventory = () => {
                               Amount <span className="text-xs text-gray-500">($MAGIC)</span>
                             </th>
                             <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
+                              Address
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
                               Unlock Date
                             </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-500">
-                          {deposits.map(({ id, amount, unlockDate }, i) => {
+                          {leaderboard.map(({ id, amount, address, unlockDate }, i) => {
                             return (
                               <tr key={id}>
                                 <td width="20" className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
@@ -72,7 +80,12 @@ const Inventory = () => {
                                   {formatPrice(amount)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  {unlockDate?.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
+                                  <a href={`https://arbiscan.io/address/${address}`} className="hover:underline">
+                                    {shortenAddress(address)}
+                                  </a>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {unlockDate.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
                                 </td>
                               </tr>
                             );

@@ -1,5 +1,6 @@
 import { formatEther } from "ethers/lib/utils";
 import { BigNumberish } from "ethers";
+import type { Deposit } from "../generated/graphql";
 
 const UNITS = ["", "K", "M", "B", "T", "Q"];
 
@@ -39,3 +40,18 @@ export function getCollectionSlugFromName(
 ): string | undefined {
   return collectionName?.replace(/\s+/g, "-")?.toLowerCase();
 }
+
+export const normalizeDeposit = (deposit: Partial<Deposit>) => {
+  const {
+    id,
+    amount,
+    user: { id: address } = {},
+    endTimestamp = 0,
+  } = deposit;
+  return {
+    id,
+    amount,
+    address,
+    unlockDate: new Date(parseInt(endTimestamp)),
+  };
+};
