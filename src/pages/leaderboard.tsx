@@ -4,7 +4,7 @@ import { shortenAddress } from "@usedapp/core";
 
 import client from "../lib/client";
 import { CenterLoadingDots } from "../components/CenterLoadingDots";
-import { formatPrice } from "../utils";
+import { daysUntil, formatDate, formatPrice } from "../utils";
 import { Contracts } from "../const";
 import { useChainId } from "../lib/hooks";
 
@@ -71,6 +71,7 @@ const Inventory = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-500">
                           {leaderboard.map(({ id, amount, address, unlockDate }, i) => {
+                            const daysUntilUnlock = daysUntil(new Date(), unlockDate);
                             return (
                               <tr key={id}>
                                 <td width="20" className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
@@ -85,7 +86,12 @@ const Inventory = () => {
                                   </a>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  {unlockDate.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
+                                  {formatDate(unlockDate)}{" "}
+                                  {daysUntilUnlock && daysUntilUnlock > 0 && (
+                                    <span className="text-sm text-gray-400">
+                                      (in {daysUntilUnlock} day{daysUntilUnlock !== 1 ? 's' : ''})
+                                    </span>
+                                  )}
                                 </td>
                               </tr>
                             );

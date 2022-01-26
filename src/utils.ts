@@ -46,12 +46,36 @@ export const normalizeDeposit = (deposit: Partial<Deposit>) => {
     id,
     amount,
     user: { id: address } = {},
+    lock,
     endTimestamp = 0,
   } = deposit;
   return {
     id,
     amount,
     address,
+    lock,
     unlockDate: new Date(parseInt(endTimestamp)),
   };
 };
+
+export const getLockupPeriodDisplayText = (lock?: number) => {
+  switch (lock) {
+    case 0: return '2 weeks';
+    case 1: return '1 month';
+    case 2: return '3 months';
+    case 3: return '6 months';
+    case 4: return '12 months';
+    default: return 'Unknown';
+  }
+}
+
+export const formatDate = (date?: Date) =>
+  date?.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" });
+
+export const daysUntil = (date1?: Date, date2?: Date): number | undefined => {
+  if (!date1 || !date2) {
+    return undefined;
+  }
+
+  return Math.round((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
+}

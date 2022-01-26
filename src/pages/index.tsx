@@ -6,7 +6,7 @@ import { AddressZero } from "@ethersproject/constants";
 
 import client from "../lib/client";
 import { CenterLoadingDots } from "../components/CenterLoadingDots";
-import { formatPrice, normalizeDeposit } from "../utils";
+import { daysUntil, formatDate, formatPrice, getLockupPeriodDisplayText, normalizeDeposit } from "../utils";
 import type { Deposit } from "../../generated/graphql";
 
 const Inventory = () => {
@@ -57,12 +57,16 @@ const Inventory = () => {
                               Amount <span className="text-xs text-gray-500">($MAGIC)</span>
                             </th>
                             <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
+                              Lockup Period
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
                               Unlock Date
                             </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-500">
-                          {deposits.map(({ id, amount, unlockDate }, i) => {
+                          {deposits.map(({ id, amount, lock, unlockDate }, i) => {
+                            const daysUntilUnlock = daysUntil(new Date(), unlockDate);
                             return (
                               <tr key={id}>
                                 <td width="20" className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
@@ -72,7 +76,15 @@ const Inventory = () => {
                                   {formatPrice(amount)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  {unlockDate?.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
+                                  {getLockupPeriodDisplayText(lock)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {formatDate(unlockDate)}{" "}
+                                  {daysUntilUnlock && daysUntilUnlock > 0 && (
+                                    <span className="text-sm text-gray-400">
+                                      (in {daysUntilUnlock} day{daysUntilUnlock !== 1 ? 's' : ''})
+                                    </span>
+                                  )}
                                 </td>
                               </tr>
                             );
