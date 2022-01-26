@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
 import { useEthers } from "@usedapp/core";
@@ -6,12 +6,16 @@ import { AddressZero } from "@ethersproject/constants";
 
 import client from "../lib/client";
 import { CenterLoadingDots } from "../components/CenterLoadingDots";
-import { daysUntil, formatDate, formatPrice, getLockupPeriodDisplayText, normalizeDeposit } from "../utils";
+import { EthIcon, MagicIcon, SwapIcon } from "../components/Icons";
+import { useMagic } from "../context/magicContext";
+import { daysUntil, formatDate, formatNumber, getLockupPeriodDisplayText, normalizeDeposit } from "../utils";
 import type { Deposit } from "../../generated/graphql";
 
 const Inventory = () => {
   const { query } = useRouter();
   const { account } = useEthers();
+  const { ethPrice, usdPrice } = useMagic();
+  const [portfolioCurrency, setPortfolioCurrency] = useState<"magic" | "eth">("magic");
   const address = (query.address as string ?? account)?.toLowerCase();
 
   const userDeposits = useQuery(
@@ -24,7 +28,10 @@ const Inventory = () => {
   const deposits = useMemo(() => {
     const { deposits = [] } = userDeposits.data?.user || {};
     return deposits.map((deposit) => normalizeDeposit(deposit as Deposit));
-  }, [userDeposits.data?.user])
+  }, [userDeposits.data?.user]);
+
+  const totalDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
+  const totalMiningPower = deposits.reduce((total, { miningPower }) => total + miningPower, 0);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -40,6 +47,50 @@ const Inventory = () => {
               </section>
             ) : (
               <>
+                <div className="mt-12 overflow-hidden flex flex-col items-center">
+                  <dl className="sm:-mx-8 -mt-8 flex divide-x-2">
+                    <div className="flex flex-col px-6 sm:px-8 pt-8">
+                      <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4 flex">
+                        <span className="capsize">Deposited</span>
+                        <button
+                          className="inline-flex self-end items-center ml-2"
+                          onClick={() =>
+                            setPortfolioCurrency((currency) =>
+                              currency === "eth" ? "magic" : "eth"
+                            )
+                          }
+                        >
+                          <SwapIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
+                          {portfolioCurrency === "eth" ? (
+                            <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
+                          ) : (
+                            <EthIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
+                          )}
+                        </button>
+                      </dt>
+                      <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl flex">
+                        {portfolioCurrency === "eth" ? (
+                          <EthIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
+                        ) : (
+                          <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
+                        )}
+                        <span className="capsize">
+                          {portfolioCurrency === "eth" ?
+                            formatNumber(totalDeposited * parseFloat(ethPrice)) :
+                            formatNumber(totalDeposited)}{" "}
+                        </span>
+                      </dd>
+                    </div>
+                    <div className="flex flex-col px-6 sm:px-8 pt-8">
+                      <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
+                        Mining Power
+                      </dt>
+                      <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
+                        {formatNumber(totalMiningPower)}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
                 <section className="mt-14 pb-14">
                   {deposits.length === 0 ? (
                     <div className="flex flex-col justify-center items-center h-36">
@@ -62,10 +113,13 @@ const Inventory = () => {
                             <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
                               Unlock Date
                             </th>
+                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
+                              Mining Power
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-500">
-                          {deposits.map(({ id, amount, lock, unlockDate }, i) => {
+                          {deposits.map(({ id, amount, lock, unlockDate, miningPower }, i) => {
                             const daysUntilUnlock = daysUntil(new Date(), unlockDate);
                             return (
                               <tr key={id}>
@@ -73,7 +127,7 @@ const Inventory = () => {
                                   {i + 1})
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  {formatPrice(amount)}
+                                  {formatNumber(amount)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   {getLockupPeriodDisplayText(lock)}
@@ -85,6 +139,9 @@ const Inventory = () => {
                                       (in {daysUntilUnlock} day{daysUntilUnlock !== 1 ? 's' : ''})
                                     </span>
                                   )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {formatNumber(miningPower)}
                                 </td>
                               </tr>
                             );

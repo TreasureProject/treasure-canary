@@ -49,12 +49,14 @@ export const normalizeDeposit = (deposit: Partial<Deposit>) => {
     lock,
     endTimestamp = 0,
   } = deposit;
+  const amountWei = parseFloat(formatEther(amount));
   return {
     id,
-    amount,
+    amount: amountWei,
     address,
     lock,
     unlockDate: new Date(parseInt(endTimestamp)),
+    miningPower: amountWei + (getLockupPeriodBoost(lock) * amountWei),
   };
 };
 
@@ -66,6 +68,17 @@ export const getLockupPeriodDisplayText = (lock?: number) => {
     case 3: return '6 months';
     case 4: return '12 months';
     default: return 'Unknown';
+  }
+}
+
+export const getLockupPeriodBoost = (lock?: number) => {
+  switch (lock) {
+    case 0: return 0.1;
+    case 1: return 0.25;
+    case 2: return 0.8;
+    case 3: return 1.8;
+    case 4: return 4;
+    default: return 0;
   }
 }
 
