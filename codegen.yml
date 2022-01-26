@@ -1,0 +1,12 @@
+overwrite: true
+schema: "https://api.thegraph.com/subgraphs/name/treasureproject/bridgeworld"
+documents: "src/graphql/**/*.graphql.ts"
+generates:
+  generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"
+config:
+  namingConvention:
+    enumValues: keep
