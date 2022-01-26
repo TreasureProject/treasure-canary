@@ -41,7 +41,7 @@ export function getCollectionSlugFromName(
   return collectionName?.replace(/\s+/g, "-")?.toLowerCase();
 }
 
-export const normalizeDeposit = (deposit: Partial<Deposit>) => {
+export const normalizeDeposit = (deposit: Partial<Deposit>, boostPct = 0) => {
   const {
     id,
     amount,
@@ -56,7 +56,7 @@ export const normalizeDeposit = (deposit: Partial<Deposit>) => {
     address,
     lock,
     unlockDate: new Date(parseInt(endTimestamp)),
-    miningPower: amountWei + (getLockupPeriodBoost(lock) * amountWei),
+    miningPower: amountWei + (getLockupPeriodBoost(lock) * amountWei) + (amountWei * boostPct),
   };
 };
 

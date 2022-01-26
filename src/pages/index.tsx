@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
 import { useEthers } from "@usedapp/core";
+import { formatEther } from "ethers/lib/utils";
 import { AddressZero } from "@ethersproject/constants";
 
 import client from "../lib/client";
@@ -10,13 +11,19 @@ import { EthIcon, MagicIcon, SwapIcon } from "../components/Icons";
 import { useMagic } from "../context/magicContext";
 import { daysUntil, formatDate, formatNumber, getLockupPeriodDisplayText, normalizeDeposit } from "../utils";
 import type { Deposit } from "../../generated/graphql";
+import { useBridgeworld } from "../lib/hooks";
 
 const Inventory = () => {
   const { query } = useRouter();
   const { account } = useEthers();
-  const { ethPrice, usdPrice } = useMagic();
+  const { ethPrice } = useMagic();
   const [portfolioCurrency, setPortfolioCurrency] = useState<"magic" | "eth">("magic");
   const address = (query.address as string ?? account)?.toLowerCase();
+
+  const {
+    // accMagicPerShare,
+    totalLpToken,
+  } = useBridgeworld();
 
   const userDeposits = useQuery(
     "userDeposits",
@@ -25,13 +32,18 @@ const Inventory = () => {
     { enabled: !!address }
   );
 
-  const deposits = useMemo(() => {
-    const { deposits = [] } = userDeposits.data?.user || {};
-    return deposits.map((deposit) => normalizeDeposit(deposit as Deposit));
+  const [deposits, nftBoost] = useMemo(() => {
+    const { deposits = [], boost = "0" } = userDeposits.data?.user || {};
+    const boostPct = parseFloat(boost);
+    return [
+      deposits.map((deposit) => normalizeDeposit(deposit as Deposit, boostPct)),
+      boostPct,
+    ];
   }, [userDeposits.data?.user]);
 
-  const totalDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
-  const totalMiningPower = deposits.reduce((total, { miningPower }) => total + miningPower, 0);
+  const totalUserDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
+  const totalUserMiningPower = deposits.reduce((total, { miningPower }) => total + miningPower, 0);
+  const totalMiningPower = parseFloat(formatEther(totalLpToken));
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -76,9 +88,17 @@ const Inventory = () => {
                         )}
                         <span className="capsize">
                           {portfolioCurrency === "eth" ?
-                            formatNumber(totalDeposited * parseFloat(ethPrice)) :
-                            formatNumber(totalDeposited)}{" "}
+                            formatNumber(totalUserDeposited * parseFloat(ethPrice)) :
+                            formatNumber(totalUserDeposited)}{" "}
                         </span>
+                      </dd>
+                    </div>
+                    <div className="flex flex-col px-6 sm:px-8 pt-8">
+                      <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
+                        NFT Boost
+                      </dt>
+                      <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
+                        {formatNumber(nftBoost * 100)}%
                       </dd>
                     </div>
                     <div className="flex flex-col px-6 sm:px-8 pt-8">
@@ -86,7 +106,15 @@ const Inventory = () => {
                         Mining Power
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
-                        {formatNumber(totalMiningPower)}
+                        {formatNumber(totalUserMiningPower)}
+                      </dd>
+                    </div>
+                    <div className="flex flex-col px-6 sm:px-8 pt-8">
+                      <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
+                        Share of Mine
+                      </dt>
+                      <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
+                        {totalMiningPower ? Math.round(((totalUserMiningPower / totalMiningPower) * 100) * 10000) / 10000 : 0}%
                       </dd>
                     </div>
                   </dl>

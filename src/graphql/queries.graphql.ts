@@ -16,6 +16,7 @@ export const getUserDeposits = gql`
   ${DEPOSIT_FRAGMENT}
   query getUserDeposits($id: ID!) {
     user(id: $id) {
+      boost,
       deposits {
         ...DepositFields
       }
