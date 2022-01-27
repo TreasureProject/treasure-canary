@@ -10,28 +10,27 @@ export const generateIpfsLink = (hash: string) => {
   return `https://treasure-marketplace.mypinata.cloud/ipfs/${removedIpfs}`;
 };
 
-export const formatNumber = (number: number) =>
-  new Intl.NumberFormat().format(number);
+export const formatNumber = (count: number, options: Intl.NumberFormatOptions = {}): string => {
+  if (count >= 1000000) {
+    options.minimumFractionDigits = 3;
+    options.maximumFractionDigits = 3;
+    return `${(count / 1000000).toLocaleString(undefined, options)}M`.replace(/[.,]000$/, "");
+  }
+
+  if (!options.maximumFractionDigits) {
+    if (count < 1) {
+      options.maximumFractionDigits = 5;
+    } else {
+      options.minimumFractionDigits = 2;
+      options.maximumFractionDigits = 2;
+    }
+  }
+
+  return count.toLocaleString(undefined, options).replace(/[.,]00$/, "");
+};
 
 export const formatPrice = (price: BigNumberish) =>
   formatNumber(parseFloat(formatEther(price)));
-
-export const abbreviatePrice = (number: string) => {
-  if (!number) return 0;
-
-  let formatted_number = parseFloat(formatEther(number));
-  let unit_index = 0;
-
-  while (Math.floor(formatted_number / 1000.0) >= 1) {
-    // Jump up a 1000 bracket and round to 1 decimal
-    formatted_number = Math.round(formatted_number / 100.0) / 10.0;
-    unit_index += 1;
-  }
-
-  const unit = UNITS[unit_index] ?? "";
-
-  return formatted_number.toFixed(1).replace(/\.0+$/, "") + unit;
-};
 
 // takes a Collection Name and tries to return a user-friendly slug for routes
 // can return undefined if chainId is missing, or address lookup fails

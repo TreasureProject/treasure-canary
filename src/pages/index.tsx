@@ -12,8 +12,8 @@ import { EthIcon, MagicIcon, SwapIcon } from "../components/Icons";
 import { useMagic } from "../context/magicContext";
 import {
   daysUntil,
-  formatDate,
   formatNumber,
+  formatDate,
   getLockupPeriodDisplayText,
   normalizeDeposit,
 } from "../utils";
@@ -51,7 +51,6 @@ const Inventory = () => {
   const totalUserMiningPower = deposits.reduce((total, { miningPower }) => total + miningPower, 0);
   const totalMiningPower = parseFloat(formatEther(totalLpToken));
   const userMiningPowerPct = totalMiningPower ? totalUserMiningPower / totalMiningPower : 0;
-  const roundedUserMiningPowerPct = Math.round(((userMiningPowerPct) * 100) * 10000) / 10000;
   const totalEmissions = 23464251;
   const emissionsPerHour = totalEmissions / 5844; // over 8 months
 
@@ -111,9 +110,13 @@ const Inventory = () => {
                         </Tooltip> */}
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
-                        {formatNumber(nftBoost * 100)}%
+                        {nftBoost * 100}%
                       </dd>
                     </div>
+                  </dl>
+                </div>
+                <div className="mt-10 overflow-hidden flex flex-col items-center">
+                  <dl className="sm:-mx-8 -mt-8 flex divide-x-2">
                     <div className="flex flex-col px-6 sm:px-8 pt-8">
                       <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
                         Mining Power
@@ -130,7 +133,7 @@ const Inventory = () => {
                         </Tooltip>
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
-                        {roundedUserMiningPowerPct}%
+                        {formatNumber(userMiningPowerPct * 100)}%
                       </dd>
                     </div>
                     <div className="relative flex flex-col px-6 sm:px-8 pt-8">
@@ -141,7 +144,7 @@ const Inventory = () => {
                         </Tooltip>
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
-                        {(userMiningPowerPct * emissionsPerHour).toFixed(2)}
+                        {formatNumber(userMiningPowerPct * emissionsPerHour)}
                       </dd>
                     </div>
                   </dl>
