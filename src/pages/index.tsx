@@ -22,6 +22,8 @@ import { useBridgeworld } from "../lib/hooks";
 import { Tooltip } from "../components/Tooltip";
 import ImageWrapper from "../components/ImageWrapper";
 
+type Metadata = LegionInfo | TreasureInfo;
+
 const Inventory = () => {
   const { query } = useRouter();
   const { account } = useEthers();
@@ -44,7 +46,7 @@ const Inventory = () => {
     return [
       deposits.map((deposit) => normalizeDeposit(deposit as Deposit, boostPct)),
       boostPct,
-      staked,
+      staked.sort((n1, n2) => parseFloat((n2.token.metadata as Metadata).boost) - parseFloat((n1.token.metadata as Metadata).boost)),
     ];
   }, [userDeposits.data?.user]);
 
@@ -219,7 +221,7 @@ const Inventory = () => {
                           className="grid grid-cols-2 gap-y-10 sm:grid-cols-4 gap-x-6 lg:grid-cols-6 xl:gap-x-8"
                         >
                           {stakedNfts.map(({ id, token, quantity }) => {
-                            const metadata = (token.metadata || {}) as LegionInfo | TreasureInfo;
+                            const metadata = (token.metadata || {}) as Metadata;
                             return (
                               <li key={id} className="relative">
                                 {parseFloat(quantity) > 1 && (
