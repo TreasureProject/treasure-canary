@@ -12,14 +12,39 @@ const DEPOSIT_FRAGMENT = gql`
   }
 `;
 
+const TOKEN_FRAGMENT = gql`
+  fragment TokenFields on Token {
+    id
+    name
+    image
+    tokenId
+    metadata {
+      ... on LegionInfo {
+        boost
+      }
+      ... on TreasureInfo {
+        boost
+      }
+    }
+  }
+`;
+
 export const getUserDeposits = gql`
   ${DEPOSIT_FRAGMENT}
+  ${TOKEN_FRAGMENT}
   query getUserDeposits($id: ID!) {
     user(id: $id) {
       boost,
       boosts,
       deposits {
         ...DepositFields
+      }
+      staked {
+        id,
+        quantity,
+        token {
+          ...TokenFields
+        }
       }
     }
   }

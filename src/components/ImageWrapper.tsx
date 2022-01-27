@@ -8,10 +8,7 @@ type ImageWrapperProps = Pick<
   src?: string;
   token: {
     name?: string | null;
-    metadata?: {
-      description: string;
-      image: string;
-    } | null;
+    image?: string | null;
   };
 };
 
@@ -22,17 +19,8 @@ export default function ImageWrapper({
 }: ImageWrapperProps) {
   return (
     <Image
-      alt={token.name ?? ""}
-      src={
-        src ??
-        (token.metadata?.description === "Smol Brains Land"
-          ? generateIpfsLink(
-              "ipfs://QmUcEoYHwye65tsncGAtoz2bQLjQtrE2GiCa6L1PYNcbh7/0.png"
-            )
-          : token.metadata?.image.includes("ipfs")
-          ? generateIpfsLink(token.metadata.image)
-          : token.metadata?.image ?? "")
-      }
+      alt=""
+      src={src ?? (token.image?.includes("ipfs") ? generateIpfsLink(token.image) : token.image ?? "")}
       layout={Boolean(props.width) ? undefined : "fill"}
       {...props}
     />

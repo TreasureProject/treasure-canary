@@ -173,7 +173,7 @@ const Header = () => {
                       </Link>
                       <Link href="/" passHref>
                         <a className="flex items-center text-sm font-medium dark:hover:text-gray-200 hover:text-gray-800 dark:text-gray-500 text-gray-700">
-                          My Deposits
+                          Dashboard
                         </a>
                       </Link>
                       <Link href="/leaderboard" passHref>
