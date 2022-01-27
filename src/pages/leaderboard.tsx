@@ -7,6 +7,7 @@ import { CenterLoadingDots } from "../components/CenterLoadingDots";
 import { daysUntil, formatDate, formatPrice } from "../utils";
 import { Contracts } from "../const";
 import { useChainId } from "../lib/hooks";
+import Link from "next/link";
 
 const Inventory = () => {
   const chainId = useChainId();
@@ -81,9 +82,11 @@ const Inventory = () => {
                                   {formatPrice(amount)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <a href={`https://arbiscan.io/address/${address}`} className="hover:underline">
-                                    {shortenAddress(address)}
-                                  </a>
+                                  <Link href={`/?address=${address}`} passHref>
+                                    <a className="hover:underline">
+                                      {shortenAddress(address)}
+                                    </a>
+                                  </Link>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   {formatDate(unlockDate)}{" "}

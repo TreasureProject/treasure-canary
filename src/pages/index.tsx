@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
-import { useEthers } from "@usedapp/core";
+import { shortenAddress, useEthers } from "@usedapp/core";
 import { formatEther } from "ethers/lib/utils";
 import { AddressZero } from "@ethersproject/constants";
 import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
@@ -61,7 +61,7 @@ const Inventory = () => {
         <main className="flex-1 overflow-y-auto">
           <div className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-center text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
-              Dashboard
+              {address === account?.toLowerCase() ? 'My' : `${shortenAddress(address)}'s`} Dashboard
             </h1>
             {userDeposits.isLoading ? (
               <section className="mt-14 pb-14">
@@ -218,10 +218,15 @@ const Inventory = () => {
                           role="list"
                           className="grid grid-cols-2 gap-y-10 sm:grid-cols-4 gap-x-6 lg:grid-cols-6 xl:gap-x-8"
                         >
-                          {stakedNfts.map(({ id, token }) => {
+                          {stakedNfts.map(({ id, token, quantity }) => {
                             const metadata = (token.metadata || {}) as LegionInfo | TreasureInfo;
                             return (
-                              <li key={id} className="group">
+                              <li key={id} className="relative">
+                                {parseFloat(quantity) > 1 && (
+                                  <span className="absolute top-0 right-0 z-50 px-2 py-1 -mt-2 -mr-2 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full">
+                                    x{quantity}
+                                  </span>
+                                )}
                                 <div className="block w-full aspect-w-1 aspect-h-1 rounded-sm overflow-hidden sm:aspect-w-3 sm:aspect-h-3">
                                   <ImageWrapper
                                     className="w-full h-full object-center object-fill"
