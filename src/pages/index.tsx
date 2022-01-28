@@ -28,8 +28,10 @@ import { useChainId } from "../lib/hooks";
 import { Tooltip } from "../components/Tooltip";
 import ImageWrapper from "../components/ImageWrapper";
 import Button from "../components/Button";
-import { EMISSIONS_PER_HOUR } from "../const";
+import { EMISSIONS_PER_HOUR, legionNfts } from "../const";
 import NewDepositRow, { NewDepositData } from "../components/NewDepositRow";
+import { SearchAutocomplete } from "../components/SearchAutocomplete";
+import { Item } from "react-stately";
 
 type Metadata = LegionInfo | TreasureInfo;
 
@@ -42,6 +44,7 @@ const Inventory = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editDeposits, setEditDeposits] = useState([] as any[]);
   const [editNfts, setEditNfts] = useState([] as any[]);
+  const [selectedAddNft, setSelectedAddNft] = useState("");
   const [totalLpTokens, setTotalLpTokens] = useState(0);
   const address = (query.address as string ?? account)?.toLowerCase();
 
@@ -63,16 +66,35 @@ const Inventory = () => {
     { enabled: !!address }
   );
 
-  const [userDeposits, userNftBoost, userNfts] = useMemo(() => {
-    const { deposits = [], boost = "0", staked = [] } = fetchedDeposits.data?.user || {};
+  const [treasures, userDeposits, userNftBoost, userNfts] = useMemo(() => {
+    const { treasures = [], user } = fetchedDeposits.data || {};
+    const {
+      deposits = [],
+      boost = "0",
+      staked = [],
+    } = user || {};
     const boostPct = boost !== "" ? parseFloat(boost) : 0;
+    const groupedStaked: any[] = [];
+    staked.forEach((stakedToken) => {
+      if (stakedToken.token.category !== "Legion") {
+        groupedStaked.push(stakedToken);
+        return;
+      }
+
+      const index = groupedStaked.findIndex(({ token: { name } }) => name === stakedToken.token.name);
+      if (index >= 0) {
+        groupedStaked[index].quantity = (parseInt(groupedStaked[index].quantity) + 1).toString();
+      } else {
+        groupedStaked.push(stakedToken);
+      }
+    });
     return [
+      treasures,
       deposits.map((deposit) => normalizeDeposit(deposit as Deposit)),
       boostPct,
-      staked.sort((n1, n2) =>
-        parseFloat((n2.token.metadata as Metadata).boost) - parseFloat((n1.token.metadata as Metadata).boost)),
+      groupedStaked,
     ];
-  }, [fetchedDeposits.data?.user]);
+  }, [fetchedDeposits.data]);
 
   const toggleEditMode = () => {
     if (isEditMode) {
@@ -83,6 +105,28 @@ const Inventory = () => {
       setIsEditMode(true);
     }
   }
+
+  const isMyDashboard = address && address === account?.toLowerCase();
+
+  const deposits = isEditMode ? editDeposits : userDeposits;
+  const nfts = (isEditMode ? editNfts : userNfts).sort((n1, n2) =>
+    parseFloat((n2.token.metadata as Metadata).boost) - parseFloat((n1.token.metadata as Metadata).boost));
+  const nftBoost = isEditMode ?
+    editNfts.reduce((total, { quantity, token }) =>
+      total + (quantity * parseFloat((token.metadata as Metadata).boost)), 0)
+    : userNftBoost;
+
+  const depositsMiningPower = deposits.map(({ amount, lock }) =>
+    amount + (getLockupPeriodBoost(lock) * amount) + (amount * nftBoost));
+  const totalUserDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
+  const totalUserMiningPower = depositsMiningPower.reduce((total, current) => total + current, 0);
+  const totalMiningPower = parseFloat(formatEther(totalLpTokens));
+  const userMiningPowerPct = totalMiningPower ? totalUserMiningPower / totalMiningPower : 0;
+  const nftIds = nfts.map(({ token: { id } }) => id);
+  const nftNames = nfts.map(({ token: { name } }) => name);
+  const totalTreasureNfts = nfts.filter(({ token: { category } }) => category === 'Treasure').reduce((total, { quantity }) => total + parseFloat(quantity), 0);
+  const totalLegionNfts = nfts.filter(({ token: { category } }) => category === 'Legion').reduce((total, { quantity }) => total + parseFloat(quantity), 0);
+  const availableNfts = [...treasures, ...legionNfts].filter(({ id, name }) => !nftIds.includes(id) && !nftNames.includes(name)).sort((n1, n2) => n1.name.localeCompare(n2.name));
 
   const addDeposit = (deposit: NewDepositData) => {
     setEditDeposits((current) => [...current, deposit]);
@@ -118,26 +162,38 @@ const Inventory = () => {
     });
   };
 
+  const addNft = () => {
+    const token = availableNfts.find(({ id }) => id === selectedAddNft);
+    if (token) {
+      setEditNfts((current) => [
+        ...current,
+        {
+          id: `${address}-${selectedAddNft}`,
+          quantity: 1,
+          token: token,
+        }
+      ]);
+      setSelectedAddNft("");
+    } else {
+      console.log('Attempting to add unknown NFT with ID ', selectedAddNft);
+    }
+  };
+
   const removeNft = (id: string) => {
     setEditNfts((current) => current.filter(({ id: nftId }) => nftId !== id));
   };
 
-  const isMyDashboard = address && address === account?.toLowerCase();
+  const underNftCategoryLimit = (category: string) => {
+    if (category === 'Legion') {
+      return totalLegionNfts < 3;
+    }
 
-  const deposits = isEditMode ? editDeposits : userDeposits;
-  const nfts = isEditMode ? editNfts : userNfts;
-  const nftBoost = isEditMode ?
-    editNfts.reduce((total, { quantity, token }) =>
-      total + (quantity * parseFloat((token.metadata as Metadata).boost)), 0)
-    : userNftBoost;
+    return totalTreasureNfts < 20;
+  };
 
-  const depositsMiningPower = deposits.map(({ amount, lock }) =>
-    amount + (getLockupPeriodBoost(lock) * amount) + (amount * nftBoost));
-  const totalUserDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
-  const totalUserMiningPower = depositsMiningPower.reduce((total, current) => total + current, 0);
-  const totalMiningPower = parseFloat(formatEther(totalLpTokens));
-  const userMiningPowerPct = totalMiningPower ? totalUserMiningPower / totalMiningPower : 0;
-  const totalNfts = nfts.reduce((total, { quantity }) => total + parseFloat(quantity), 0);
+  const getNftCategory = (id: string) => {
+    return availableNfts.find(({ id: nftId }) => nftId === id)?.category || "";
+  };
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -332,56 +388,76 @@ const Inventory = () => {
                       </h3>
                     </div>
                   ) : (
-                    <ul
-                      role="list"
-                      className="grid grid-cols-2 gap-y-10 sm:grid-cols-4 gap-x-6 lg:grid-cols-6 xl:gap-x-8"
-                    >
-                      {nfts.map(({ id, token, quantity }) => {
-                        const metadata = (token.metadata || {}) as Metadata;
-                        return (
-                          <li key={id} className="relative">
-                            {(isEditMode || parseFloat(quantity) > 1) && (
-                              <span className="absolute top-0 right-0 z-50 px-2 py-1 -mt-2 -mr-2 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full">
-                                x{quantity}
-                              </span>
-                            )}
-                            <div className="block w-full aspect-w-1 aspect-h-1 rounded-sm overflow-hidden sm:aspect-w-3 sm:aspect-h-3">
-                              <ImageWrapper
-                                className="w-full h-full object-center object-fill"
-                                token={token}
-                              />
-                            </div>
-                            <div className="mt-4 text-base font-medium text-gray-900 space-y-2">
-                              <p className="text-xs text-gray-800 dark:text-gray-50 font-semibold truncate">
-                                {token.name}
-                              </p>
-                              {metadata.boost && (
-                                <p className="text-xs text-gray-500 truncate">
-                                  {formatNumber(parseFloat(metadata.boost) * 100)}% Boost
-                                </p>
+                    <>
+                      <ul
+                        role="list"
+                        className="grid grid-cols-2 gap-y-10 sm:grid-cols-4 gap-x-6 lg:grid-cols-6 xl:gap-x-8"
+                      >
+                        {nfts.map(({ id, token, quantity }) => {
+                          const metadata = (token.metadata || {}) as Metadata;
+                          return (
+                            <li key={id} className="relative">
+                              {(isEditMode || parseFloat(quantity) > 1) && (
+                                <span className="absolute top-0 right-0 z-50 px-2 py-1 -mt-2 -mr-2 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full">
+                                  x{quantity}
+                                </span>
                               )}
-                            </div>
-                            {isEditMode && (
-                              <div className="mt-3 flex items-center justify-between space-x-2">
-                                <span
-                                  className={`inline h-5 w-5 ${quantity > 1 ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
-                                  onClick={quantity > 1 ? () => decreaseNft(id) : undefined}
-                                >
-                                  <ChevronDownIcon />
-                                </span>
-                                <Button onClick={() => removeNft(id)}>Remove</Button>
-                                <span
-                                  className={`inline h-5 w-5 ${totalNfts < 20 ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
-                                  onClick={totalNfts < 20 ? () => increaseNft(id) : undefined}
-                                >
-                                  <ChevronUpIcon />
-                                </span>
+                              <div className="block w-full aspect-w-1 aspect-h-1 rounded-sm overflow-hidden sm:aspect-w-3 sm:aspect-h-3">
+                                <ImageWrapper
+                                  className="w-full h-full object-center object-fill"
+                                  token={token}
+                                />
                               </div>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
+                              <div className="mt-4 text-base font-medium text-gray-900 space-y-2">
+                                <p className="text-xs text-gray-800 dark:text-gray-50 font-semibold truncate">
+                                  {token.name}
+                                </p>
+                                {metadata.boost && (
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {formatNumber(parseFloat(metadata.boost) * 100)}% Boost
+                                  </p>
+                                )}
+                              </div>
+                              {isEditMode && (
+                                <div className="mt-3 flex items-center justify-between space-x-2">
+                                  <span
+                                    className={`inline h-5 w-5 ${quantity > 1 ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
+                                    onClick={quantity > 1 ? () => decreaseNft(id) : undefined}
+                                  >
+                                    <ChevronDownIcon />
+                                  </span>
+                                  <Button onClick={() => removeNft(id)}>Remove</Button>
+                                  <span
+                                    className={`inline h-5 w-5 ${underNftCategoryLimit(token.category) ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
+                                    onClick={underNftCategoryLimit(token.category) ? () => increaseNft(id) : undefined}
+                                  >
+                                    <ChevronUpIcon />
+                                  </span>
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {isEditMode && (
+                        <div className="mt-8 grid grid-cols-6 gap-2">
+                          <div className="col-span-5">
+                            <SearchAutocomplete
+                              label="Search NFTs"
+                              placeholder="Search NFTs..."
+                              onSelectionChange={(id) => {
+                                setSelectedAddNft(id as string);
+                              }}
+                            >
+                              {availableNfts.map(({ id, name }) => (
+                                <Item key={id}>{name}</Item>
+                              )) ?? []}
+                            </SearchAutocomplete>
+                          </div>
+                          <Button onClick={addNft} disabled={!underNftCategoryLimit(getNftCategory(selectedAddNft))}>Add</Button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </section>
               </>

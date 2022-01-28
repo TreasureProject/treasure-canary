@@ -2,12 +2,12 @@ import gql from "graphql-tag";
 
 const DEPOSIT_FRAGMENT = gql`
   fragment DepositFields on Deposit {
-    id,
-    amount,
+    id
+    amount
     user {
       id
-    },
-    lock,
+    }
+    lock
     endTimestamp
   }
 `;
@@ -16,6 +16,8 @@ const TOKEN_FRAGMENT = gql`
   fragment TokenFields on Token {
     id
     name
+    category
+    contract
     image
     tokenId
     metadata {
@@ -34,18 +36,21 @@ export const getUserDeposits = gql`
   ${TOKEN_FRAGMENT}
   query getUserDeposits($id: ID!) {
     user(id: $id) {
-      boost,
-      boosts,
+      boost
+      boosts
       deposits {
         ...DepositFields
       }
       staked {
-        id,
-        quantity,
+        id
+        quantity
         token {
           ...TokenFields
         }
       }
+    }
+    treasures: tokens(first: 50, where: { category: Treasure }) {
+      ...TokenFields
     }
   }
 `;
