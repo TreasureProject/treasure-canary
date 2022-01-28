@@ -1,10 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
 import { shortenAddress, useEthers } from "@usedapp/core";
 import { formatEther } from "ethers/lib/utils";
 import { AddressZero } from "@ethersproject/constants";
-import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import {
+  ChevronDoubleUpIcon,
+  ChevronDoubleDownIcon,
+  QuestionMarkCircleIcon
+} from "@heroicons/react/outline";
 
 import client from "../lib/client";
 import { CenterLoadingDots } from "../components/CenterLoadingDots";
@@ -17,9 +21,10 @@ import {
   getLockupPeriodDisplayText,
   normalizeDeposit,
   getLockupPeriodBoost,
+  getTotalLpTokens,
 } from "../utils";
 import type { Deposit, LegionInfo, TreasureInfo } from "../../generated/graphql";
-import { useBridgeworld } from "../lib/hooks";
+import { useChainId } from "../lib/hooks";
 import { Tooltip } from "../components/Tooltip";
 import ImageWrapper from "../components/ImageWrapper";
 import Button from "../components/Button";
@@ -32,12 +37,24 @@ const Inventory = () => {
   const { query } = useRouter();
   const { account } = useEthers();
   const { ethPrice } = useMagic();
+  const chainId = useChainId();
   const [portfolioCurrency, setPortfolioCurrency] = useState<"magic" | "eth">("magic");
   const [isEditMode, setIsEditMode] = useState(false);
   const [editDeposits, setEditDeposits] = useState([] as any[]);
   const [editNfts, setEditNfts] = useState([] as any[]);
-  const { totalLpToken = 0 } = useBridgeworld();
+  const [totalLpTokens, setTotalLpTokens] = useState(0);
   const address = (query.address as string ?? account)?.toLowerCase();
+
+  useEffect(() => {
+    const fetchTotalLpTokens = async () => {
+      const nextTotalLpTokens = await getTotalLpTokens(chainId);
+      setTotalLpTokens(nextTotalLpTokens);
+    };
+
+    const fetchInterval = setInterval(fetchTotalLpTokens, 10000);
+    fetchTotalLpTokens();
+    return () => clearInterval(fetchInterval);
+  }, [chainId]);
 
   const fetchedDeposits = useQuery(
     `deposits-${address}`,
@@ -92,7 +109,7 @@ const Inventory = () => {
     amount + (getLockupPeriodBoost(lock) * amount) + (amount * nftBoost));
   const totalUserDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
   const totalUserMiningPower = depositsMiningPower.reduce((total, current) => total + current, 0);
-  const totalMiningPower = parseFloat(formatEther(totalLpToken));
+  const totalMiningPower = parseFloat(formatEther(totalLpTokens));
   const userMiningPowerPct = totalMiningPower ? totalUserMiningPower / totalMiningPower : 0;
 
   return (
@@ -318,7 +335,11 @@ const Inventory = () => {
                               )}
                             </div>
                             {isEditMode && (
-                              <Button className="mt-3" onClick={() => removeNft(id)}>Remove</Button>
+                              <div className="mt-3 flex justify-between space-x-2">
+                                {/* <span className="inline h-5 w-5"><ChevronDoubleDownIcon /></span> */}
+                                <Button onClick={() => removeNft(id)}>Remove</Button>
+                                {/* <span className="inline h-5 w-5"><ChevronDoubleUpIcon /></span> */}
+                              </div>
                             )}
                           </li>
                         );

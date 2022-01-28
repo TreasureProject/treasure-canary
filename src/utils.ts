@@ -1,8 +1,13 @@
+import { BigNumberish, Contract } from "ethers";
+import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import { formatEther } from "ethers/lib/utils";
-import { BigNumberish } from "ethers";
-import type { Deposit } from "../generated/graphql";
+import { ChainId } from "@usedapp/core";
 
-const UNITS = ["", "K", "M", "B", "T", "Q"];
+import type { Deposit } from "../generated/graphql";
+import { Contracts } from "./const";
+import { bridgeworld } from "./lib/abis";
+
+const ArbitrumProvider = new StaticJsonRpcProvider("https://arb1.arbitrum.io/rpc");
 
 export const generateIpfsLink = (hash: string) => {
   const removedIpfs = hash.substring(7);
@@ -92,4 +97,9 @@ export const daysUntil = (date1?: Date, date2?: Date): number | undefined => {
   }
 
   return Math.round((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
-}
+};
+
+export const getTotalLpTokens = async (chainId: ChainId) => {
+  const contract = new Contract(Contracts[chainId].atlasMine, bridgeworld, ArbitrumProvider);
+  return contract.totalLpToken();
+};
