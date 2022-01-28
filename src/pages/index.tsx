@@ -24,6 +24,7 @@ import { Tooltip } from "../components/Tooltip";
 import ImageWrapper from "../components/ImageWrapper";
 import Button from "../components/Button";
 import { EMISSIONS_PER_HOUR } from "../const";
+import NewDepositRow, { NewDepositData } from "../components/NewDepositRow";
 
 type Metadata = LegionInfo | TreasureInfo;
 
@@ -65,6 +66,10 @@ const Inventory = () => {
       setIsEditMode(true);
     }
   }
+
+  const addDeposit = (deposit: NewDepositData) => {
+    setEditDeposits((current) => [...current, deposit]);
+  };
 
   const removeDeposit = (id: string) => {
     setEditDeposits((current) => current.filter(({ id: depositId }) => depositId !== id));
@@ -228,7 +233,7 @@ const Inventory = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-500">
-                          {(isEditMode ? editDeposits : deposits).map(({ id, amount, lock, unlockDate }, i) => {
+                          {deposits.map(({ id, amount, lock, unlockDate }, i) => {
                             const daysUntilUnlock = daysUntil(new Date(), unlockDate);
                             return (
                               <tr key={id}>
@@ -260,6 +265,13 @@ const Inventory = () => {
                               </tr>
                             );
                           })}
+                          {isEditMode && (
+                            <NewDepositRow
+                              id={`newDeposit-${deposits.length}`}
+                              nftBoost={nftBoost}
+                              onSubmit={addDeposit}
+                            />
+                          )}
                         </tbody>
                       </table>
                     </>

@@ -69,6 +69,17 @@ export const getLockupPeriodDisplayText = (lock?: number) => {
   }
 }
 
+export const getLockUpPeriodInSeconds = (lock?: number) => {
+  switch (lock) {
+    case 0: return 1209600;
+    case 1: return 2592000;
+    case 2: return 7776000;
+    case 3: return 15552000;
+    case 4: return 31536000;
+    default: return 0;
+  }
+}
+
 export const getLockupPeriodBoost = (lock?: number) => {
   switch (lock) {
     case 0: return 0.1;
