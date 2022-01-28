@@ -1,14 +1,12 @@
-import {
-  ChainId,
-  useContractCall,
-  useEthers,
-} from "@usedapp/core";
-import { utils } from "ethers";
+import { useState } from "react";
+import { ChainId, useEthers } from "@usedapp/core";
+import { Contract } from "ethers";
+import { StaticJsonRpcProvider } from "@ethersproject/providers";
 
 import { Contracts } from "../const";
 import { bridgeworld } from "./abis";
 
-const BridgeworldInterface = new utils.Interface(bridgeworld);
+const ArbitrumProvider = new StaticJsonRpcProvider("https://arb1.arbitrum.io/rpc");
 
 export function useChainId() {
   const { chainId } = useEthers();
@@ -23,17 +21,13 @@ export function useChainId() {
 }
 
 export function useBridgeworld() {
+  const [data, setData] = useState<{ totalLpToken?: number }>({});
   const chainId = useChainId();
-  const contractAddress = Contracts[chainId].atlasMine;
 
-  const [totalLpToken = 0] = useContractCall({
-    abi: BridgeworldInterface,
-    address: contractAddress,
-    method: "totalLpToken",
-    args: [],
-  }) || [];
+  const contract = new Contract(Contracts[chainId].atlasMine, bridgeworld, ArbitrumProvider);
+  contract.totalLpToken().then((totalLpToken) => {
+    setData({ totalLpToken });
+  });
 
-  return {
-    totalLpToken,
-  };
+  return data;
 }

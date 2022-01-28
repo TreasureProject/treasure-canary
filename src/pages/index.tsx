@@ -36,7 +36,7 @@ const Inventory = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editDeposits, setEditDeposits] = useState([] as any[]);
   const [editNfts, setEditNfts] = useState([] as any[]);
-  const { totalLpToken } = useBridgeworld();
+  const { totalLpToken = 0 } = useBridgeworld();
   const address = (query.address as string ?? account)?.toLowerCase();
 
   const fetchedDeposits = useQuery(
@@ -79,7 +79,7 @@ const Inventory = () => {
     setEditNfts((current) => current.filter(({ id: nftId }) => nftId !== id));
   };
 
-  const isMyDashboard = address === account?.toLowerCase();
+  const isMyDashboard = address && address === account?.toLowerCase();
 
   const deposits = isEditMode ? editDeposits : userDeposits;
   const nfts = isEditMode ? editNfts : userNfts;
@@ -101,7 +101,7 @@ const Inventory = () => {
         <main className="flex-1 overflow-y-auto">
           <div className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-center text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
-              {isMyDashboard ? 'My' : `${shortenAddress(address)}'s`} Dashboard
+              {isMyDashboard ? 'My Dashboard' : address ? `${shortenAddress(address)}'s Dashboard` : 'Dashboard'}
             </h1>
             {fetchedDeposits.isLoading ? (
               <section className="mt-14 pb-14">

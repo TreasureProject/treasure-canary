@@ -32,14 +32,6 @@ export const formatNumber = (count: number, options: Intl.NumberFormatOptions = 
 export const formatPrice = (price: BigNumberish) =>
   formatNumber(parseFloat(formatEther(price)));
 
-// takes a Collection Name and tries to return a user-friendly slug for routes
-// can return undefined if chainId is missing, or address lookup fails
-export function getCollectionSlugFromName(
-  collectionName: string | null | undefined
-): string | undefined {
-  return collectionName?.replace(/\s+/g, "-")?.toLowerCase();
-}
-
 export const normalizeDeposit = (deposit: Partial<Deposit>) => {
   const {
     id,
