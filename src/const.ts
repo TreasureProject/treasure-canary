@@ -12,3 +12,7 @@ export const Contracts = {
     bridgeworld: "0xc71e6725569af73ac6641ec4bcc99a709ead40c7",
   },
 };
+
+export const TOTAL_EMISSIONS = 23464251;
+
+export const EMISSIONS_PER_HOUR = TOTAL_EMISSIONS / 5844; // 8 months

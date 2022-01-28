@@ -22,20 +22,11 @@ import Footer from "../components/Footer";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchInterval: 2500,
+      refetchInterval: 10000,
       refetchOnWindowFocus: false,
     },
   },
 });
-
-const config = {
-  readOnlyChainId: ChainId.Arbitrum,
-  readOnlyUrls: {
-    [ChainId.Rinkeby]:
-      "https://rinkeby.infura.io/v3/62687d1a985d4508b2b7a24827551934",
-    [ChainId.Arbitrum]: `https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`,
-  },
-};
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -84,7 +75,7 @@ function MyApp({ Component, pageProps }) {
       </Head>
       <ThemeProvider attribute="class">
         <SSRProvider>
-          <DAppProvider config={config}>
+          <DAppProvider config={{}}>
             <MagicProvider>
               <QueryClientProvider client={queryClient}>
                 <Main Component={Component} pageProps={pageProps} />

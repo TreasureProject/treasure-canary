@@ -26,13 +26,6 @@ export function useBridgeworld() {
   const chainId = useChainId();
   const contractAddress = Contracts[chainId].atlasMine;
 
-  // const [accMagicPerShare = 0] = useContractCall({
-  //   abi: BridgeworldInterface,
-  //   address: contractAddress,
-  //   method: "accMagicPerShare",
-  //   args: [],
-  // }) || [];
-
   const [totalLpToken = 0] = useContractCall({
     abi: BridgeworldInterface,
     address: contractAddress,
@@ -41,7 +34,6 @@ export function useBridgeworld() {
   }) || [];
 
   return {
-    // accMagicPerShare,
     totalLpToken,
   };
 }

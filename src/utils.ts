@@ -40,7 +40,7 @@ export function getCollectionSlugFromName(
   return collectionName?.replace(/\s+/g, "-")?.toLowerCase();
 }
 
-export const normalizeDeposit = (deposit: Partial<Deposit>, boostPct = 0) => {
+export const normalizeDeposit = (deposit: Partial<Deposit>) => {
   const {
     id,
     amount,
@@ -48,14 +48,13 @@ export const normalizeDeposit = (deposit: Partial<Deposit>, boostPct = 0) => {
     lock,
     endTimestamp = 0,
   } = deposit;
-  const amountWei = parseFloat(formatEther(amount));
+  const parsedAmount = parseFloat(formatEther(amount));
   return {
     id,
-    amount: amountWei,
+    amount: parsedAmount,
     address,
     lock,
-    unlockDate: new Date(parseInt(endTimestamp)),
-    miningPower: amountWei + (getLockupPeriodBoost(lock) * amountWei) + (amountWei * boostPct),
+    unlockDate: new Date(parseInt(endTimestamp))
   };
 };
 
