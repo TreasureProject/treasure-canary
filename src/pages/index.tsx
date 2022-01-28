@@ -187,7 +187,7 @@ const Inventory = () => {
                     </div>
                   </dl>
                 </div>
-                {isMyDashboard && (
+                {(isMyDashboard || !address) && (
                   <Button className="w-auto mx-auto mt-8" onClick={toggleEditMode}>
                     {isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
                   </Button>
