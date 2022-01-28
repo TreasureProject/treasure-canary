@@ -381,7 +381,7 @@ const Inventory = () => {
                   <h2 id="staked-heading" className="my-6 text-xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
                     Staked NFTs
                   </h2>
-                  {nfts.length === 0 ? (
+                  {!isEditMode && nfts.length === 0 ? (
                     <div className="flex flex-col justify-center items-center h-20">
                       <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">
                         No NFTs staked yet
