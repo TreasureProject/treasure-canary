@@ -61,9 +61,7 @@ const Inventory = () => {
 
   const fetchedDeposits = useQuery(
     `deposits-${address}`,
-    () =>
-      client.getUserDeposits({ id: address ?? AddressZero }),
-    { enabled: !!address }
+    () => client.getUserDeposits({ id: address ?? AddressZero })
   );
 
   const [treasures, userDeposits, userNftBoost, userNfts] = useMemo(() => {
