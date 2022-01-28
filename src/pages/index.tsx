@@ -5,8 +5,8 @@ import { shortenAddress, useEthers } from "@usedapp/core";
 import { formatEther } from "ethers/lib/utils";
 import { AddressZero } from "@ethersproject/constants";
 import {
-  ChevronDoubleUpIcon,
-  ChevronDoubleDownIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
   QuestionMarkCircleIcon
 } from "@heroicons/react/outline";
 
@@ -92,6 +92,32 @@ const Inventory = () => {
     setEditDeposits((current) => current.filter(({ id: depositId }) => depositId !== id));
   };
 
+  const increaseNft = (id: string) => {
+    const index = editNfts.findIndex(({ id: nftId }) => nftId === id);
+    if (index < 0) {
+      return;
+    }
+
+    setEditNfts((current) => {
+      const next = [...current];
+      next[index].quantity = (parseFloat(current[index].quantity) + 1).toString();
+      return next;
+    });
+  };
+
+  const decreaseNft = (id: string) => {
+    const index = editNfts.findIndex(({ id: nftId }) => nftId === id);
+    if (index < 0) {
+      return;
+    }
+
+    setEditNfts((current) => {
+      const next = [...current];
+      next[index].quantity = (parseFloat(current[index].quantity) - 1).toString();
+      return next;
+    });
+  };
+
   const removeNft = (id: string) => {
     setEditNfts((current) => current.filter(({ id: nftId }) => nftId !== id));
   };
@@ -111,6 +137,7 @@ const Inventory = () => {
   const totalUserMiningPower = depositsMiningPower.reduce((total, current) => total + current, 0);
   const totalMiningPower = parseFloat(formatEther(totalLpTokens));
   const userMiningPowerPct = totalMiningPower ? totalUserMiningPower / totalMiningPower : 0;
+  const totalNfts = nfts.reduce((total, { quantity }) => total + parseFloat(quantity), 0);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -335,10 +362,20 @@ const Inventory = () => {
                               )}
                             </div>
                             {isEditMode && (
-                              <div className="mt-3 flex justify-between space-x-2">
-                                {/* <span className="inline h-5 w-5"><ChevronDoubleDownIcon /></span> */}
+                              <div className="mt-3 flex items-center justify-between space-x-2">
+                                <span
+                                  className={`inline h-5 w-5 ${quantity > 1 ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
+                                  onClick={quantity > 1 ? () => decreaseNft(id) : undefined}
+                                >
+                                  <ChevronDownIcon />
+                                </span>
                                 <Button onClick={() => removeNft(id)}>Remove</Button>
-                                {/* <span className="inline h-5 w-5"><ChevronDoubleUpIcon /></span> */}
+                                <span
+                                  className={`inline h-5 w-5 ${totalNfts < 20 ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
+                                  onClick={totalNfts < 20 ? () => increaseNft(id) : undefined}
+                                >
+                                  <ChevronUpIcon />
+                                </span>
                               </div>
                             )}
                           </li>

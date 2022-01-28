@@ -2,7 +2,7 @@ import "../css/tailwind.css";
 
 import { Fragment, useEffect, useState } from "react";
 import Head from "next/head";
-import { ChainId, DAppProvider } from "@usedapp/core";
+import { DAppProvider } from "@usedapp/core";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { resolveValue, Toaster } from "react-hot-toast";
