@@ -40,7 +40,8 @@ const Inventory = () => {
   const { account } = useEthers();
   const { ethPrice } = useMagic();
   const chainId = useChainId();
-  const [portfolioCurrency, setPortfolioCurrency] = useState<"magic" | "eth">("magic");
+  const [currency, setCurrency] = useState<"magic" | "eth">("magic");
+  const [rewardTime, setRewardTime] = useState(24);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editDeposits, setEditDeposits] = useState([] as any[]);
   const [editNfts, setEditNfts] = useState([] as any[]);
@@ -215,13 +216,13 @@ const Inventory = () => {
                         <button
                           className="inline-flex self-end items-center ml-2"
                           onClick={() =>
-                            setPortfolioCurrency((currency) =>
+                            setCurrency((currency) =>
                               currency === "eth" ? "magic" : "eth"
                             )
                           }
                         >
                           <SwapIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
-                          {portfolioCurrency === "eth" ? (
+                          {currency === "eth" ? (
                             <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
                           ) : (
                             <EthIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
@@ -229,13 +230,13 @@ const Inventory = () => {
                         </button>
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl flex">
-                        {portfolioCurrency === "eth" ? (
+                        {currency === "eth" ? (
                           <EthIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
                         ) : (
                           <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
                         )}
                         <span className="capsize">
-                          {portfolioCurrency === "eth" ?
+                          {currency === "eth" ?
                             formatNumber(totalUserDeposited * parseFloat(ethPrice)) :
                             formatNumber(totalUserDeposited)}{" "}
                         </span>
@@ -272,15 +273,52 @@ const Inventory = () => {
                         {formatNumber(userMiningPowerPct * 100)}%
                       </dd>
                     </div>
-                    <div className="relative flex flex-col px-6 sm:px-8 pt-8">
-                      <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
-                        $MAGIC Rewards/Hour{" "}
-                        <Tooltip content="Your share of 23,464,251 MAGIC set to be emitted over the next 8 months" side="bottom">
+                    <div className="flex flex-col px-6 sm:px-8 pt-8">
+                      <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4 flex">
+                        <span className="capsize">
+                          Rewards /{" "}
+                          <select
+                            className="form-select rounded-md border py-0 pl-1 pr-6 dark:text-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 dark:focus:ring-gray-300 dark:focus:border-gray-300 text-base font-medium text-gray-700 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                            value={rewardTime}
+                            onChange={(e) => setRewardTime(parseInt(e.target.value))}
+                          >
+                            <option value={1}>Hour</option>
+                            <option value={24}>Day</option>
+                            <option value={168}>Week</option>
+                            <option value={720}>Month</option>
+                            <option value={8760}>Year</option>
+                          </select>
+                        </span>
+                        {/* <Tooltip content="Your share of 23,464,251 MAGIC set to be emitted over the next 8 months" side="bottom">
                           <QuestionMarkCircleIcon className="inline h-5 w-5" aria-hidden="true" />
-                        </Tooltip>
+                        </Tooltip> */}
+                        <button
+                          className="inline-flex self-end items-center ml-2"
+                          onClick={() =>
+                            setCurrency((currency) =>
+                              currency === "eth" ? "magic" : "eth"
+                            )
+                          }
+                        >
+                          <SwapIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
+                          {currency === "eth" ? (
+                            <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
+                          ) : (
+                            <EthIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4" />
+                          )}
+                        </button>
                       </dt>
-                      <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
-                        {formatNumber(userMiningPowerPct * EMISSIONS_PER_HOUR)}
+                      <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl flex">
+                        {currency === "eth" ? (
+                          <EthIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
+                        ) : (
+                          <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
+                        )}
+                        <span className="capsize">
+                          {currency === "eth" ?
+                            formatNumber(userMiningPowerPct * EMISSIONS_PER_HOUR * rewardTime * parseFloat(ethPrice)) :
+                            formatNumber(userMiningPowerPct * EMISSIONS_PER_HOUR * rewardTime)}{" "}
+                        </span>
                       </dd>
                     </div>
                   </dl>
