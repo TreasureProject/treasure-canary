@@ -1357,6 +1357,11 @@
     "@json-rpc-tools/types" "^1.7.6"
     "@pedrouid/environment" "^1.0.1"
 
+"@metamask/detect-provider@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@metamask/detect-provider/-/detect-provider-1.2.0.tgz#3667a7531f2a682e3c3a43eaf3a1958bdb42a696"
+  integrity sha512-ocA76vt+8D0thgXZ7LxFPyqw3H7988qblgzddTDA6B8a/yU0uKV42QR/DhA+Jh11rJjxW0jKvwb5htA6krNZDQ==
+
 "@n1ru4l/graphql-live-query@0.8.1":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@n1ru4l/graphql-live-query/-/graphql-live-query-0.8.1.tgz#2d6ca6157dafdc5d122a1aeb623b43e939c4b238"
@@ -2831,24 +2836,21 @@
   dependencies:
     "@usedapp/core" "^0.8.0"
 
-"@usedapp/core@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-0.8.0.tgz#a7062a9cf03ace2f9e1c5e5b3a4e1d3c0de8f0b4"
-  integrity sha512-N3PU3fKw2OhyY8U/xJ3JPJ/ZXZ3VUhtYalhLBYLInDiXFtPcL3RO8hSJt/hj07G8Cb7Qxp/Y5cATqTpd/qxLPg==
+"@usedapp/core@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-0.11.0.tgz#0df080d253468b421c6b712f1b0bbcc7bfec15e9"
+  integrity sha512-59M4FToZLdXLPf9R4eME7aOBHcwrqmf8+038Mq9Zcd3Ep+YvrN0vnIdNyzjAAJXXBa3bX139ueli0lKwrGYbUQ==
   dependencies:
-    "@types/react" "17.0.1"
+    "@metamask/detect-provider" "^1.2.0"
     "@uniswap/token-lists" "^1.0.0-beta.27"
-    "@web3-react/core" "6.1.1"
-    "@web3-react/injected-connector" "6.0.7"
-    "@web3-react/network-connector" "6.1.5"
     ethers "5.5.1"
     lodash.merge "^4.6.2"
     nanoid "3.1.22"
 
-"@usedapp/core@^0.9.1":
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-0.9.1.tgz#b895caabf4bfe7f1bfda00651b60812b3437156f"
-  integrity sha512-Xhv3EZPVdkwn1J1qX7vC4GwPEfYU03cqRdWf2HupkWoEyCwkj/QrOpeoYz0TEWVlIle948kaBhDe+HKr48cKSw==
+"@usedapp/core@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-0.8.0.tgz#a7062a9cf03ace2f9e1c5e5b3a4e1d3c0de8f0b4"
+  integrity sha512-N3PU3fKw2OhyY8U/xJ3JPJ/ZXZ3VUhtYalhLBYLInDiXFtPcL3RO8hSJt/hj07G8Cb7Qxp/Y5cATqTpd/qxLPg==
   dependencies:
     "@types/react" "17.0.1"
     "@uniswap/token-lists" "^1.0.0-beta.27"
@@ -6182,12 +6184,7 @@ nanoid@3.1.22:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.22.tgz#b35f8fb7d151990a8aebd5aa5015c03cf726f844"
   integrity sha512-/2ZUaJX2ANuLtTvqTlgqBQNJoQO398KyJgZloL0PZkC0dpysjncRUPsFe3DUPzz/y3h+u7C46np8RMuvF3jsSQ==
 
-nanoid@^3.1.23:
-  version "3.1.25"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.25.tgz#09ca32747c0e543f0e1814b7d3793477f9c8e152"
-  integrity sha512-rdwtIXaXCLFAQbnfqDRnI6jaRHp9fTcYBjtFKE8eezcZ7LuLjhUaQGNeMXf1HmRoCH32CLz6XwX0TtxEOS/A3Q==
-
-nanoid@^3.1.30:
+nanoid@^3.1.23, nanoid@^3.1.30:
   version "3.1.30"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
   integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
