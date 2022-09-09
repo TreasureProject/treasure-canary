@@ -38,10 +38,10 @@ export const getUserDeposits = gql`
     user(id: $id) {
       boost
       boosts
-      deposits {
+      deposits(where: { lock_not: null }) {
         ...DepositFields
       }
-      staked {
+      staked(where: { mine_not: null }) {
         id
         quantity
         token {
@@ -60,7 +60,12 @@ export const getAtlasMineTopDeposits = gql`
   query getAtlasMineTopDeposits($id: ID!, $first: Int!, $skip: Int!) {
     atlasMine(id: $id) {
       id
-      deposits(first: $first, skip: $skip, orderBy: amount, orderDirection: desc) {
+      deposits(
+        first: $first
+        skip: $skip
+        orderBy: amount
+        orderDirection: desc
+      ) {
         ...DepositFields
       }
     }
