@@ -40,6 +40,9 @@ export const getUserDeposits = gql`
       boosts
       deposits(where: { lock_not: null }) {
         ...DepositFields
+        withdrawal {
+          amount
+        }
       }
       staked(where: { mine_not: null }) {
         id

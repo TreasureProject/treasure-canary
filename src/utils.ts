@@ -52,6 +52,7 @@ export const normalizeDeposit = (deposit: Partial<Deposit>) => {
     user: { id: address } = {},
     lock,
     endTimestamp = 0,
+    withdrawal,
   } = deposit;
   const parsedAmount = parseFloat(formatEther(amount));
   return {
@@ -60,6 +61,7 @@ export const normalizeDeposit = (deposit: Partial<Deposit>) => {
     address,
     lock,
     unlockDate: new Date(parseInt(endTimestamp)),
+    withdrawn: parseFloat(formatEther(withdrawal?.amount ?? 0)),
   };
 };
 

@@ -92,7 +92,9 @@ const Inventory = () => {
     });
     return [
       treasures,
-      deposits.map((deposit) => normalizeDeposit(deposit as Deposit)),
+      deposits
+        .map((deposit) => normalizeDeposit(deposit as Deposit))
+        .filter((deposit) => deposit.amount !== deposit.withdrawn),
       boostPct,
       groupedStaked,
     ];
@@ -452,7 +454,10 @@ const Inventory = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-500">
                           {deposits.map(
-                            ({ id, amount, lock, unlockDate }, i) => {
+                            (
+                              { id, amount, lock, unlockDate, withdrawn },
+                              i
+                            ) => {
                               const daysUntilUnlock = daysUntil(
                                 new Date(),
                                 unlockDate
@@ -466,6 +471,9 @@ const Inventory = () => {
                                     {i + 1})
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
+                                    {withdrawn > 0
+                                      ? `${formatNumber(withdrawn)}/`
+                                      : ""}
                                     {formatNumber(amount)}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
