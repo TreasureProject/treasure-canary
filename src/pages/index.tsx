@@ -32,7 +32,7 @@ import { useChainId } from "../lib/hooks";
 import { Tooltip } from "../components/Tooltip";
 import ImageWrapper from "../components/ImageWrapper";
 import Button from "../components/Button";
-import { EMISSIONS_PER_HOUR, legionNfts } from "../const";
+import { legionNfts } from "../const";
 import NewDepositRow, { NewDepositData } from "../components/NewDepositRow";
 import { SearchAutocomplete } from "../components/SearchAutocomplete";
 import { Item } from "react-stately";
@@ -66,6 +66,23 @@ const Inventory = () => {
 
   const fetchedDeposits = useQuery(`deposits-${address}`, () =>
     client.getUserDeposits({ id: address ?? AddressZero })
+  );
+
+  const emissionsPerHour = useQuery(
+    "rewards-per-hour",
+    async () => {
+      const response = await fetch("https://api.treasure.lol/mines");
+      const data: Array<{
+        address: string;
+        name: string;
+        emissionsShare: number;
+        emissionsPerSecond: number;
+      }> = await response.json();
+      const atlas = data.find((item) => item.name === "Atlas Mine");
+
+      return (atlas?.emissionsPerSecond ?? 0) * 3600;
+    },
+    { refetchInterval: 30_000 }
   );
 
   const [treasures, userDeposits, userNftBoost, userNfts] = useMemo(() => {
@@ -367,13 +384,13 @@ const Inventory = () => {
                           {currency === "eth"
                             ? formatNumber(
                                 userMiningPowerPct *
-                                  EMISSIONS_PER_HOUR *
+                                  (emissionsPerHour.data ?? 0) *
                                   rewardTime *
                                   parseFloat(ethPrice)
                               )
                             : formatNumber(
                                 userMiningPowerPct *
-                                  EMISSIONS_PER_HOUR *
+                                  (emissionsPerHour?.data ?? 0) *
                                   rewardTime
                               )}{" "}
                         </span>

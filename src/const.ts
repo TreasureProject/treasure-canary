@@ -13,10 +13,6 @@ export const Contracts = {
   },
 };
 
-export const TOTAL_EMISSIONS = 23464251;
-
-export const EMISSIONS_PER_HOUR = TOTAL_EMISSIONS / 5844; // 8 months
-
 export const legionNfts = [
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x10a",
