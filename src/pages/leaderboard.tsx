@@ -12,14 +12,12 @@ import Link from "next/link";
 const Inventory = () => {
   const chainId = useChainId();
 
-  const topDeposits = useQuery(
-    "topDeposits",
-    () =>
-      client.getAtlasMineTopDeposits({
-        id: Contracts[chainId].atlasMine,
-        first: 100,
-        skip: 0,
-      })
+  const topDeposits = useQuery("topDeposits", () =>
+    client.getAtlasMineTopDeposits({
+      id: Contracts[chainId].atlasMine,
+      first: 100,
+      skip: 0,
+    })
   );
 
   const leaderboard = useMemo(() => {
@@ -29,8 +27,8 @@ const Inventory = () => {
       amount,
       address: user.id,
       unlockDate: new Date(parseInt(endTimestamp)),
-    }))
-  }, [topDeposits.data?.atlasMine])
+    }));
+  }, [topDeposits.data?.atlasMine]);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden pt-24">
@@ -59,46 +57,70 @@ const Inventory = () => {
                         <thead>
                           <tr>
                             <th scope="col"></th>
-                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
-                              Amount <span className="text-xs text-gray-500">($MAGIC)</span>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider"
+                            >
+                              Amount{" "}
+                              <span className="text-xs text-gray-500">
+                                ($MAGIC)
+                              </span>
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider"
+                            >
                               Address
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left font-medium text-gray-300 uppercase tracking-wider"
+                            >
                               Unlock Date
                             </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-500">
-                          {leaderboard.map(({ id, amount, address, unlockDate }, i) => {
-                            const daysUntilUnlock = daysUntil(new Date(), unlockDate);
-                            return (
-                              <tr key={id}>
-                                <td width="20" className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                  {i + 1})
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {formatPrice(amount)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <Link href={`/?address=${address}`} passHref>
-                                    <a className="hover:underline">
-                                      {shortenAddress(address)}
-                                    </a>
-                                  </Link>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {formatDate(unlockDate)}{" "}
-                                  {daysUntilUnlock && daysUntilUnlock > 0 && (
-                                    <span className="text-sm text-gray-400">
-                                      (in {daysUntilUnlock} day{daysUntilUnlock !== 1 ? 's' : ''})
-                                    </span>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
+                          {leaderboard.map(
+                            ({ id, amount, address, unlockDate }, i) => {
+                              const daysUntilUnlock = daysUntil(
+                                new Date(),
+                                unlockDate
+                              );
+                              return (
+                                <tr key={id}>
+                                  <td
+                                    width="20"
+                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-400"
+                                  >
+                                    {i + 1})
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {formatPrice(amount)}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <Link
+                                      href={`/?address=${address}`}
+                                      passHref
+                                    >
+                                      <a className="hover:underline">
+                                        {shortenAddress(address)}
+                                      </a>
+                                    </Link>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {formatDate(unlockDate)}{" "}
+                                    {daysUntilUnlock && daysUntilUnlock > 0 && (
+                                      <span className="text-sm text-gray-400">
+                                        (in {daysUntilUnlock} day
+                                        {daysUntilUnlock !== 1 ? "s" : ""})
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            }
+                          )}
                         </tbody>
                       </table>
                     </>

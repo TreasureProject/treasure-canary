@@ -39,13 +39,19 @@ function MyApp({ Component, pageProps }) {
           content="Track your deposits to the Bridgeworld Atlas Mine by TreasureDAO"
         />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Atlas Mine Canary: Bridgeworld Stats" />
+        <meta
+          property="og:title"
+          content="Atlas Mine Canary: Bridgeworld Stats"
+        />
         <meta
           property="og:description"
           content="Track your deposits to the Bridgeworld Atlas Mine by TreasureDAO"
         />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Atlas Mine Canary: Bridgeworld Stats" />
+        <meta
+          property="twitter:title"
+          content="Atlas Mine Canary: Bridgeworld Stats"
+        />
         <meta
           property="twitter:description"
           content="Track your deposits to the Bridgeworld Atlas Mine by TreasureDAO"

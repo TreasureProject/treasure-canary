@@ -1,5 +1,11 @@
 import { useMemo, useState } from "react";
-import { formatDate, formatNumber, getLockupPeriodBoost, getLockupPeriodDisplayText, getLockUpPeriodInSeconds } from "../utils";
+import {
+  formatDate,
+  formatNumber,
+  getLockupPeriodBoost,
+  getLockupPeriodDisplayText,
+  getLockUpPeriodInSeconds,
+} from "../utils";
 import Button from "./Button";
 
 export type NewDepositData = {
@@ -14,22 +20,22 @@ const NewDepositRow = ({
   nftBoost,
   onSubmit,
 }: {
-  id: string,
-  nftBoost: number,
-  onSubmit: (data: NewDepositData) => void,
+  id: string;
+  nftBoost: number;
+  onSubmit: (data: NewDepositData) => void;
 }) => {
-  const [amount, setAmount] = useState("0")
+  const [amount, setAmount] = useState("0");
   const [lock, setLock] = useState("0");
 
   const unlockDate = useMemo(() => {
     const lockSeconds = getLockUpPeriodInSeconds(parseInt(lock));
-    return new Date(new Date().getTime() + (lockSeconds * 1000));
+    return new Date(new Date().getTime() + lockSeconds * 1000);
   }, [lock]);
 
   const miningPower = useMemo(() => {
     const parsedAmount = parseFloat(amount);
     const lockBoost = getLockupPeriodBoost(parseInt(lock));
-    return parsedAmount + (lockBoost * parsedAmount) + (nftBoost * parsedAmount);
+    return parsedAmount + lockBoost * parsedAmount + nftBoost * parsedAmount;
   }, [amount, lock, nftBoost]);
 
   const handleSubmit = () => {
@@ -60,14 +66,16 @@ const NewDepositRow = ({
           value={lock}
           onChange={(e) => setLock(e.target.value)}
         >
-          {Array(5).fill(0).map((_, i) => (
-            <option key={i} value={i}>{getLockupPeriodDisplayText(i)}</option>
-          ))}
+          {Array(5)
+            .fill(0)
+            .map((_, i) => (
+              <option key={i} value={i}>
+                {getLockupPeriodDisplayText(i)}
+              </option>
+            ))}
         </select>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        {formatDate(unlockDate)}
-      </td>
+      <td className="px-6 py-4 whitespace-nowrap">{formatDate(unlockDate)}</td>
       <td className="px-6 py-4 whitespace-nowrap">
         {formatNumber(miningPower)}
       </td>
@@ -75,7 +83,7 @@ const NewDepositRow = ({
         <Button onClick={handleSubmit}>Add</Button>
       </td>
     </tr>
-  )
+  );
 };
 
 export default NewDepositRow;

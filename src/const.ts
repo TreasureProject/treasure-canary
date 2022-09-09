@@ -21,100 +21,111 @@ export const legionNfts = [
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x10a",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Common%20Assassin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Common%20Assassin.gif",
     metadata: {
-      boost: "0.5"
+      boost: "0.5",
     },
-    name: "Genesis Common"
+    name: "Genesis Common",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x100",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Special%20Numeraire.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Special%20Numeraire.gif",
     metadata: {
-      boost: "0.75"
+      boost: "0.75",
     },
-    name: "Genesis Special"
+    name: "Genesis Special",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x105",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Uncommon%20Siege.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Uncommon%20Siege.gif",
     metadata: {
-      boost: "1.0"
+      boost: "1.0",
     },
-    name: "Genesis Uncommon"
+    name: "Genesis Uncommon",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x104",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Rare%20All-Class.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Rare%20All-Class.gif",
     metadata: {
-      boost: "2.0"
+      boost: "2.0",
     },
-    name: "Genesis Rare"
+    name: "Genesis Rare",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x20b",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
     metadata: {
-      boost: "6.0"
+      boost: "6.0",
     },
-    name: "Bombmaker"
+    name: "Bombmaker",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x65d",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
     metadata: {
-      boost: "6.0"
+      boost: "6.0",
     },
-    name: "Warlock"
+    name: "Warlock",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x6d0",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
     metadata: {
-      boost: "6.0"
+      boost: "6.0",
     },
-    name: "Fallen"
+    name: "Fallen",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x8bf",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
     metadata: {
-      boost: "6.0"
+      boost: "6.0",
     },
-    name: "Dreamwinder"
+    name: "Dreamwinder",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0xd94",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Legendary%20Origin.gif",
     metadata: {
-      boost: "6.0"
+      boost: "6.0",
     },
-    name: "Clocksnatcher"
+    name: "Clocksnatcher",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x1",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Common%20Assassin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Common%20Assassin.gif",
     metadata: {
-      boost: "0.05"
+      boost: "0.05",
     },
-    name: "Auxiliary Common"
+    name: "Auxiliary Common",
   },
   {
     id: "0xfe8c1ac365ba6780aec5a985d989b327c27670a1-0x101",
     category: "Legion",
-    image: "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Uncommon%20Assassin.gif",
+    image:
+      "ipfs://QmeR9k2WJcSiiuUGY3Wvjtahzo3UUaURiPpLEapFcDe9JC/Uncommon%20Assassin.gif",
     metadata: {
-      boost: "0.1"
+      boost: "0.1",
     },
-    name: "Auxiliary Uncommon"
-  }
+    name: "Auxiliary Uncommon",
+  },
 ];

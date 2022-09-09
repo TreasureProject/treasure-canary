@@ -20,7 +20,12 @@ export default function ImageWrapper({
   return (
     <Image
       alt=""
-      src={src ?? (token.image?.includes("ipfs") ? generateIpfsLink(token.image) : token.image ?? "")}
+      src={
+        src ??
+        (token.image?.includes("ipfs")
+          ? generateIpfsLink(token.image)
+          : token.image ?? "")
+      }
       layout={Boolean(props.width) ? undefined : "fill"}
       {...props}
     />

@@ -7,7 +7,7 @@ import { AddressZero } from "@ethersproject/constants";
 import {
   ChevronUpIcon,
   ChevronDownIcon,
-  QuestionMarkCircleIcon
+  QuestionMarkCircleIcon,
 } from "@heroicons/react/outline";
 
 import client from "../lib/client";
@@ -23,7 +23,11 @@ import {
   getLockupPeriodBoost,
   getTotalLpTokens,
 } from "../utils";
-import type { Deposit, LegionInfo, TreasureInfo } from "../../generated/graphql";
+import type {
+  Deposit,
+  LegionInfo,
+  TreasureInfo,
+} from "../../generated/graphql";
 import { useChainId } from "../lib/hooks";
 import { Tooltip } from "../components/Tooltip";
 import ImageWrapper from "../components/ImageWrapper";
@@ -47,7 +51,7 @@ const Inventory = () => {
   const [editNfts, setEditNfts] = useState([] as any[]);
   const [selectedAddNft, setSelectedAddNft] = useState("");
   const [totalLpTokens, setTotalLpTokens] = useState(0);
-  const address = (query.address as string ?? account)?.toLowerCase();
+  const address = ((query.address as string) ?? account)?.toLowerCase();
 
   useEffect(() => {
     const fetchTotalLpTokens = async () => {
@@ -60,18 +64,13 @@ const Inventory = () => {
     return () => clearInterval(fetchInterval);
   }, [chainId]);
 
-  const fetchedDeposits = useQuery(
-    `deposits-${address}`,
-    () => client.getUserDeposits({ id: address ?? AddressZero })
+  const fetchedDeposits = useQuery(`deposits-${address}`, () =>
+    client.getUserDeposits({ id: address ?? AddressZero })
   );
 
   const [treasures, userDeposits, userNftBoost, userNfts] = useMemo(() => {
     const { treasures = [], user } = fetchedDeposits.data || {};
-    const {
-      deposits = [],
-      boost = "0",
-      staked = [],
-    } = user || {};
+    const { deposits = [], boost = "0", staked = [] } = user || {};
     const boostPct = boost !== "" ? parseFloat(boost) : 0;
     const groupedStaked: any[] = [];
     staked.forEach((stakedToken) => {
@@ -80,9 +79,13 @@ const Inventory = () => {
         return;
       }
 
-      const index = groupedStaked.findIndex(({ token: { name } }) => name === stakedToken.token.name);
+      const index = groupedStaked.findIndex(
+        ({ token: { name } }) => name === stakedToken.token.name
+      );
       if (index >= 0) {
-        groupedStaked[index].quantity = (parseInt(groupedStaked[index].quantity) + 1).toString();
+        groupedStaked[index].quantity = (
+          parseInt(groupedStaked[index].quantity) + 1
+        ).toString();
       } else {
         groupedStaked.push(stakedToken);
       }
@@ -103,36 +106,60 @@ const Inventory = () => {
       setEditNfts(userNfts);
       setIsEditMode(true);
     }
-  }
+  };
 
   const isMyDashboard = address && address === account?.toLowerCase();
 
   const deposits = isEditMode ? editDeposits : userDeposits;
-  const nfts = (isEditMode ? editNfts : userNfts).sort((n1, n2) =>
-    parseFloat((n2.token.metadata as Metadata).boost) - parseFloat((n1.token.metadata as Metadata).boost));
-  const nftBoost = isEditMode ?
-    editNfts.reduce((total, { quantity, token }) =>
-      total + (quantity * parseFloat((token.metadata as Metadata).boost)), 0)
+  const nfts = (isEditMode ? editNfts : userNfts).sort(
+    (n1, n2) =>
+      parseFloat((n2.token.metadata as Metadata).boost) -
+      parseFloat((n1.token.metadata as Metadata).boost)
+  );
+  const nftBoost = isEditMode
+    ? editNfts.reduce(
+        (total, { quantity, token }) =>
+          total + quantity * parseFloat((token.metadata as Metadata).boost),
+        0
+      )
     : userNftBoost;
 
-  const depositsMiningPower = deposits.map(({ amount, lock }) =>
-    amount + (getLockupPeriodBoost(lock) * amount) + (amount * nftBoost));
-  const totalUserDeposited = deposits.reduce((total, { amount }) => total + amount, 0);
-  const totalUserMiningPower = depositsMiningPower.reduce((total, current) => total + current, 0);
+  const depositsMiningPower = deposits.map(
+    ({ amount, lock }) =>
+      amount + getLockupPeriodBoost(lock) * amount + amount * nftBoost
+  );
+  const totalUserDeposited = deposits.reduce(
+    (total, { amount }) => total + amount,
+    0
+  );
+  const totalUserMiningPower = depositsMiningPower.reduce(
+    (total, current) => total + current,
+    0
+  );
   const totalMiningPower = parseFloat(formatEther(totalLpTokens));
-  const userMiningPowerPct = totalMiningPower ? totalUserMiningPower / totalMiningPower : 0;
+  const userMiningPowerPct = totalMiningPower
+    ? totalUserMiningPower / totalMiningPower
+    : 0;
   const nftIds = nfts.map(({ token: { id } }) => id);
   const nftNames = nfts.map(({ token: { name } }) => name);
-  const totalTreasureNfts = nfts.filter(({ token: { category } }) => category === 'Treasure').reduce((total, { quantity }) => total + parseFloat(quantity), 0);
-  const totalLegionNfts = nfts.filter(({ token: { category } }) => category === 'Legion').reduce((total, { quantity }) => total + parseFloat(quantity), 0);
-  const availableNfts = [...treasures, ...legionNfts].filter(({ id, name }) => !nftIds.includes(id) && !nftNames.includes(name)).sort((n1, n2) => n1.name.localeCompare(n2.name));
+  const totalTreasureNfts = nfts
+    .filter(({ token: { category } }) => category === "Treasure")
+    .reduce((total, { quantity }) => total + parseFloat(quantity), 0);
+  const totalLegionNfts = nfts
+    .filter(({ token: { category } }) => category === "Legion")
+    .reduce((total, { quantity }) => total + parseFloat(quantity), 0);
+  const availableNfts = [...treasures, ...legionNfts]
+    .filter(({ id, name }) => !nftIds.includes(id) && !nftNames.includes(name))
+    .sort((n1, n2) => n1.name.localeCompare(n2.name));
 
   const addDeposit = (deposit: NewDepositData) => {
     setEditDeposits((current) => [...current, deposit]);
   };
 
   const removeDeposit = (id: string) => {
-    setEditDeposits((current) => current.filter(({ id: depositId }) => depositId !== id));
+    setEditDeposits((current) =>
+      current.filter(({ id: depositId }) => depositId !== id)
+    );
   };
 
   const increaseNft = (id: string) => {
@@ -143,7 +170,9 @@ const Inventory = () => {
 
     setEditNfts((current) => {
       const next = [...current];
-      next[index].quantity = (parseFloat(current[index].quantity) + 1).toString();
+      next[index].quantity = (
+        parseFloat(current[index].quantity) + 1
+      ).toString();
       return next;
     });
   };
@@ -156,7 +185,9 @@ const Inventory = () => {
 
     setEditNfts((current) => {
       const next = [...current];
-      next[index].quantity = (parseFloat(current[index].quantity) - 1).toString();
+      next[index].quantity = (
+        parseFloat(current[index].quantity) - 1
+      ).toString();
       return next;
     });
   };
@@ -170,11 +201,11 @@ const Inventory = () => {
           id: `${address}-${selectedAddNft}`,
           quantity: 1,
           token: token,
-        }
+        },
       ]);
       setSelectedAddNft("");
     } else {
-      console.log('Attempting to add unknown NFT with ID ', selectedAddNft);
+      console.log("Attempting to add unknown NFT with ID ", selectedAddNft);
     }
   };
 
@@ -183,7 +214,7 @@ const Inventory = () => {
   };
 
   const underNftCategoryLimit = (category: string) => {
-    if (category === 'Legion') {
+    if (category === "Legion") {
       return totalLegionNfts < 3;
     }
 
@@ -200,7 +231,11 @@ const Inventory = () => {
         <main className="flex-1 overflow-y-auto">
           <div className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-center text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
-              {isMyDashboard ? 'My Dashboard' : address ? `${shortenAddress(address)}'s Dashboard` : 'Dashboard'}
+              {isMyDashboard
+                ? "My Dashboard"
+                : address
+                ? `${shortenAddress(address)}'s Dashboard`
+                : "Dashboard"}
             </h1>
             {fetchedDeposits.isLoading ? (
               <section className="mt-14 pb-14">
@@ -236,9 +271,11 @@ const Inventory = () => {
                           <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
                         )}
                         <span className="capsize">
-                          {currency === "eth" ?
-                            formatNumber(totalUserDeposited * parseFloat(ethPrice)) :
-                            formatNumber(totalUserDeposited)}{" "}
+                          {currency === "eth"
+                            ? formatNumber(
+                                totalUserDeposited * parseFloat(ethPrice)
+                              )
+                            : formatNumber(totalUserDeposited)}{" "}
                         </span>
                       </dd>
                     </div>
@@ -265,8 +302,16 @@ const Inventory = () => {
                     <div className="relative flex flex-col px-6 sm:px-8 pt-8">
                       <dt className="order-2 text-[0.4rem] sm:text-base font-medium text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
                         Share of Mine{" "}
-                        <Tooltip content={`Total Mining Power: ${formatNumber(totalMiningPower)}`} side="bottom">
-                          <QuestionMarkCircleIcon className="inline h-5 w-5" aria-hidden="true" />
+                        <Tooltip
+                          content={`Total Mining Power: ${formatNumber(
+                            totalMiningPower
+                          )}`}
+                          side="bottom"
+                        >
+                          <QuestionMarkCircleIcon
+                            className="inline h-5 w-5"
+                            aria-hidden="true"
+                          />
                         </Tooltip>
                       </dt>
                       <dd className="order-1 text-base font-extrabold text-red-600 dark:text-gray-200 sm:text-3xl capsize">
@@ -280,7 +325,9 @@ const Inventory = () => {
                           <select
                             className="form-select rounded-md border py-0 pl-1 pr-6 dark:text-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 dark:focus:ring-gray-300 dark:focus:border-gray-300 text-base font-medium text-gray-700 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 sm:text-sm"
                             value={rewardTime}
-                            onChange={(e) => setRewardTime(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              setRewardTime(parseInt(e.target.value))
+                            }
                           >
                             <option value={1}>Hour</option>
                             <option value={24}>Day</option>
@@ -315,22 +362,39 @@ const Inventory = () => {
                           <MagicIcon className="h-[0.6rem] w-[0.6rem] sm:h-4 sm:w-4 self-end mr-2" />
                         )}
                         <span className="capsize">
-                          {currency === "eth" ?
-                            formatNumber(userMiningPowerPct * EMISSIONS_PER_HOUR * rewardTime * parseFloat(ethPrice)) :
-                            formatNumber(userMiningPowerPct * EMISSIONS_PER_HOUR * rewardTime)}{" "}
+                          {currency === "eth"
+                            ? formatNumber(
+                                userMiningPowerPct *
+                                  EMISSIONS_PER_HOUR *
+                                  rewardTime *
+                                  parseFloat(ethPrice)
+                              )
+                            : formatNumber(
+                                userMiningPowerPct *
+                                  EMISSIONS_PER_HOUR *
+                                  rewardTime
+                              )}{" "}
                         </span>
                       </dd>
                     </div>
                   </dl>
                 </div>
                 {(isMyDashboard || !address) && (
-                  <Button className="w-auto mx-auto mt-8" onClick={toggleEditMode}>
-                    {isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
+                  <Button
+                    className="w-auto mx-auto mt-8"
+                    onClick={toggleEditMode}
+                  >
+                    {isEditMode ? "Exit Edit Mode" : "Enter Edit Mode"}
                   </Button>
                 )}
                 {isEditMode && (
-                  <p className="mt-4 mx-auto text-xs text-center text-gray-400" style={{ maxWidth: 500 }}>
-                    <span className="font-bold">Note:</span> any actions you take in edit mode are purely hypothetical and will not affect your on-chain position in Bridgeworld.
+                  <p
+                    className="mt-4 mx-auto text-xs text-center text-gray-400"
+                    style={{ maxWidth: 500 }}
+                  >
+                    <span className="font-bold">Note:</span> any actions you
+                    take in edit mode are purely hypothetical and will not
+                    affect your on-chain position in Bridgeworld.
                   </p>
                 )}
                 <section className="mt-14 pb-14">
@@ -349,58 +413,87 @@ const Inventory = () => {
                         <thead>
                           <tr>
                             <th scope="col"></th>
-                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
-                              Amount <span className="text-xs text-gray-500">($MAGIC)</span>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Amount{" "}
+                              <span className="text-xs text-gray-500">
+                                ($MAGIC)
+                              </span>
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
+                            >
                               Lockup Period
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
+                            >
                               Unlock Date
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
+                            >
                               Mining Power
                             </th>
                             {isEditMode && (
-                              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
+                              >
                                 Actions
                               </th>
                             )}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-500">
-                          {deposits.map(({ id, amount, lock, unlockDate }, i) => {
-                            const daysUntilUnlock = daysUntil(new Date(), unlockDate);
-                            return (
-                              <tr key={id}>
-                                <td width="20" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                  {i + 1})
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {formatNumber(amount)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {getLockupPeriodDisplayText(lock)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {formatDate(unlockDate)}{" "}
-                                  {daysUntilUnlock && daysUntilUnlock > 0 && (
-                                    <span className="text-sm text-gray-400">
-                                      (in {daysUntilUnlock} day{daysUntilUnlock !== 1 ? 's' : ''})
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {formatNumber(depositsMiningPower[i])}
-                                </td>
-                                {isEditMode && (
-                                  <td className="px-6 py-4 whitespace-nowrap">
-                                    <Button onClick={() => removeDeposit(id)}>Remove</Button>
+                          {deposits.map(
+                            ({ id, amount, lock, unlockDate }, i) => {
+                              const daysUntilUnlock = daysUntil(
+                                new Date(),
+                                unlockDate
+                              );
+                              return (
+                                <tr key={id}>
+                                  <td
+                                    width="20"
+                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                  >
+                                    {i + 1})
                                   </td>
-                                )}
-                              </tr>
-                            );
-                          })}
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {formatNumber(amount)}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {getLockupPeriodDisplayText(lock)}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {formatDate(unlockDate)}{" "}
+                                    {daysUntilUnlock && daysUntilUnlock > 0 && (
+                                      <span className="text-sm text-gray-400">
+                                        (in {daysUntilUnlock} day
+                                        {daysUntilUnlock !== 1 ? "s" : ""})
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {formatNumber(depositsMiningPower[i])}
+                                  </td>
+                                  {isEditMode && (
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      <Button onClick={() => removeDeposit(id)}>
+                                        Remove
+                                      </Button>
+                                    </td>
+                                  )}
+                                </tr>
+                              );
+                            }
+                          )}
                           {isEditMode && (
                             <NewDepositRow
                               id={`newDeposit-${deposits.length}`}
@@ -414,7 +507,10 @@ const Inventory = () => {
                   )}
                 </section>
                 <section aria-labelledby="staked-heading" className="my-8">
-                  <h2 id="staked-heading" className="my-6 text-xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
+                  <h2
+                    id="staked-heading"
+                    className="my-6 text-xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100"
+                  >
                     Staked NFTs
                   </h2>
                   {!isEditMode && nfts.length === 0 ? (
@@ -450,22 +546,43 @@ const Inventory = () => {
                                 </p>
                                 {metadata.boost && (
                                   <p className="text-xs text-gray-500 truncate">
-                                    {formatNumber(parseFloat(metadata.boost) * 100)}% Boost
+                                    {formatNumber(
+                                      parseFloat(metadata.boost) * 100
+                                    )}
+                                    % Boost
                                   </p>
                                 )}
                               </div>
                               {isEditMode && (
                                 <div className="mt-3 flex items-center justify-between space-x-2">
                                   <span
-                                    className={`inline h-5 w-5 ${quantity > 1 ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
-                                    onClick={quantity > 1 ? () => decreaseNft(id) : undefined}
+                                    className={`inline h-5 w-5 ${
+                                      quantity > 1
+                                        ? "cursor-pointer"
+                                        : "text-gray-300 dark:text-gray-700"
+                                    }`}
+                                    onClick={
+                                      quantity > 1
+                                        ? () => decreaseNft(id)
+                                        : undefined
+                                    }
                                   >
                                     <ChevronDownIcon />
                                   </span>
-                                  <Button onClick={() => removeNft(id)}>Remove</Button>
+                                  <Button onClick={() => removeNft(id)}>
+                                    Remove
+                                  </Button>
                                   <span
-                                    className={`inline h-5 w-5 ${underNftCategoryLimit(token.category) ? 'cursor-pointer' : 'text-gray-300 dark:text-gray-700'}`}
-                                    onClick={underNftCategoryLimit(token.category) ? () => increaseNft(id) : undefined}
+                                    className={`inline h-5 w-5 ${
+                                      underNftCategoryLimit(token.category)
+                                        ? "cursor-pointer"
+                                        : "text-gray-300 dark:text-gray-700"
+                                    }`}
+                                    onClick={
+                                      underNftCategoryLimit(token.category)
+                                        ? () => increaseNft(id)
+                                        : undefined
+                                    }
                                   >
                                     <ChevronUpIcon />
                                   </span>
@@ -490,7 +607,16 @@ const Inventory = () => {
                               )) ?? []}
                             </SearchAutocomplete>
                           </div>
-                          <Button onClick={addNft} disabled={!underNftCategoryLimit(getNftCategory(selectedAddNft))}>Add</Button>
+                          <Button
+                            onClick={addNft}
+                            disabled={
+                              !underNftCategoryLimit(
+                                getNftCategory(selectedAddNft)
+                              )
+                            }
+                          >
+                            Add
+                          </Button>
                         </div>
                       )}
                     </>
