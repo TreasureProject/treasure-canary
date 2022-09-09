@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { shortenAddress } from "@usedapp/core";
+import { formatEther } from "ethers/lib/utils";
 
 import client from "../lib/client";
 import { CenterLoadingDots } from "../components/CenterLoadingDots";
-import { daysUntil, formatDate, formatPrice } from "../utils";
+import { daysUntil, formatDate, formatNumber } from "../utils";
 import { Contracts } from "../const";
 import { useChainId } from "../lib/hooks";
 import Link from "next/link";
@@ -22,12 +23,16 @@ const Inventory = () => {
 
   const leaderboard = useMemo(() => {
     const { deposits = [] } = topDeposits.data?.atlasMine || {};
-    return deposits.map(({ id, amount, user, endTimestamp }) => ({
-      id,
-      amount,
-      address: user.id,
-      unlockDate: new Date(parseInt(endTimestamp)),
-    }));
+    return deposits
+      .map(({ id, amount, user, endTimestamp, withdrawal }) => ({
+        id,
+        amount:
+          parseFloat(formatEther(amount)) -
+          parseFloat(formatEther(withdrawal?.amount ?? 0)),
+        address: user.id,
+        unlockDate: new Date(parseInt(endTimestamp)),
+      }))
+      .filter((deposit) => deposit.amount > 0);
   }, [topDeposits.data?.atlasMine]);
 
   return (
@@ -96,7 +101,7 @@ const Inventory = () => {
                                     {i + 1})
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
-                                    {formatPrice(amount)}
+                                    {formatNumber(amount)}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     <Link

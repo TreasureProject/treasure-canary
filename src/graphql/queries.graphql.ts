@@ -9,6 +9,9 @@ const DEPOSIT_FRAGMENT = gql`
     }
     lock
     endTimestamp
+    withdrawal {
+      amount
+    }
   }
 `;
 
@@ -40,9 +43,6 @@ export const getUserDeposits = gql`
       boosts
       deposits(where: { lock_not: null }) {
         ...DepositFields
-        withdrawal {
-          amount
-        }
       }
       staked(where: { mine_not: null }) {
         id
