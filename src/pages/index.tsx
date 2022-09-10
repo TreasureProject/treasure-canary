@@ -413,7 +413,9 @@ const Inventory = () => {
                   >
                     <span className="font-bold">Note:</span> any actions you
                     take in edit mode are purely hypothetical and will not
-                    affect your on-chain position in Bridgeworld.
+                    affect your on-chain position in Bridgeworld. Edit mode may
+                    not always produce accurate results due to emissions being
+                    split between the Atlas Mine and Harvesters.
                   </p>
                 )}
                 <section className="mt-14 pb-14">
